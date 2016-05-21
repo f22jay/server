@@ -28,7 +28,7 @@ class TcpServer
 
   Acceptor _accept;
   EventLoop *_loop;
-  map<string, TcpConnectionPtr> _tcp_connections;
+  map<int, TcpConnectionPtr> _tcp_connections;
   NewConncetionCallack _connect_cb;
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;

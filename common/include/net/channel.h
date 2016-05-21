@@ -34,6 +34,7 @@ public:
     void setWriteCallBack(EventCallBack wCallBack);
     void setCloseCallBack(EventCallBack cCallBack);
     void remove();
+    bool isWriting();
     int getFd() { return _fd;}
     int getEvent() { return _events;}
     int handleEvent();

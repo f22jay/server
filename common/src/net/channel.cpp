@@ -48,8 +48,11 @@ void Channel::setWriteCallBack(EventCallBack wCallBack) {
   _writeCallBack = wCallBack;
 }
 
+void Channel::setCloseCallBack(EventCallBack cCallBack) {
+  _close_cb = cCallBack;
+}
+
 void Channel::remove() {
-  _closeCallBack();
   _loop->removeChannel(this);
 }
 
@@ -66,7 +69,20 @@ int Channel::handleEvent() {
   }
 
   _firedEvents = 0;
-
 }
 
+bool Channel::isWriting() {
+  return _events & WriteEvent;
 }
+
+}//namespace net
+
+
+
+
+
+
+
+
+
+
