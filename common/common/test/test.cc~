@@ -1,0 +1,44 @@
+/***************************************************************************
+ *
+ * Copyright (c) 2015 Baidu.com, Inc. All Rights Reserved
+ * $Id$
+ *
+ **************************************************************************/
+
+ /**
+ * @file test/test.cpp
+ * @author zhangfangjie(zhangfangjie@baidu.com)
+ * @date 2015/11/19 10:56:21
+ * @version $Revision$
+ * @brief
+ *
+ **/
+
+/* vim: set ts=4 sw=4 sts=4 tw=100 */
+#include "../include/thread_pool.h"
+#include "../include/log.h"
+#include <iostream>
+#include <pthread.h>
+
+void test() {
+  for (int i = 0; i < 10; i++) {
+    common::LOG_INFO("hello world");
+    common::LOG_DEBUG("hello world %d %d", i, ++i);
+    common::LOG_WARNING("hello world");
+    common::LOG_FATAL("hello world");
+  }
+}
+
+void test_thread_pool() {
+    common::ThreadPool threadPool(10);
+    threadPool.Start();
+    for(int i = 0; i<1000; i++) {
+        threadPool.AddTask(test);
+    }
+    while (true) ;
+}
+
+int main() {
+     test_thread_pool();
+     return 0;
+}

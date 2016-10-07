@@ -1,41 +1,39 @@
-#ifndef _TCP_SERVER_H__537390648655438541_
-#define _TCP_SERVER_H__537390648655438541_
+/* -*- C++ -*-*/
+#ifndef NET_TCP_SERVER_H
+#define NET_TCP_SERVER_H
 #include <map>
-#include <unique_ptr>
+#include <memory>
 #include <string>
-
-class Acceptor;
-class TcpConnection;
-class IpAddress;
-class EventLoop;
+#include "socket.h"
+#include "function.h"
 
 namespace net {
+class Acceptor;
+class TcpConnection;
+class EventLoop;
+class Buffer;
 using std::string;
 using std::map;
-class TcpServer
-{
+class TcpServer {
  public:
-  TcpServer(EventLoop *loop, IpAddress &address, string &name);
+  typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+  //new connect come, do
+  typedef void (* NewConncetionCallack)(int);
+
+  TcpServer(EventLoop* loop, IpAddress& address, string& name);
   virtual ~TcpServer();
 
  private:
-  typedef std::unique_ptr<TcpConnection> TcpConnectionPtr;
-  //new connect come, do
-  typedef void (* NewConncetionCallack)(int);
-  //after read message, call back
-  typedef void (* MessageCallBack) (Buffer *buf);
-  typedef void (* WriteCallBack) (Buffer *buf);
-
-  Acceptor _accept;
-  EventLoop *_loop;
+  std::unique_ptr<Acceptor> _accept;
+  EventLoop* _loop;
   map<int, TcpConnectionPtr> _tcp_connections;
   NewConncetionCallack _connect_cb;
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
-  void newConnection(int fd, IpAddress &);
-  void removeTcpConnection(string &);
-
-}
+  void newConnection(int fd, IpAddress& );
+  void removeTcpConnection(const TcpConnectionPtr& conn);
+};
+} //namespace net
 
 #endif

@@ -69,14 +69,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/moon/server/common/CMakeFiles /home/moon/server/common/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /home/moon/server/common && $(CMAKE_COMMAND) -E cmake_progress_start /home/moon/server/common/CMakeFiles /home/moon/server/common/common/test/CMakeFiles/progress.marks
+	cd /home/moon/server/common && $(MAKE) -f CMakeFiles/Makefile2 common/test/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/moon/server/common/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/moon/server/common && $(MAKE) -f CMakeFiles/Makefile2 common/test/clean
 .PHONY : clean
 
 # The main clean target
@@ -85,57 +85,56 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/moon/server/common && $(MAKE) -f CMakeFiles/Makefile2 common/test/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/moon/server/common && $(MAKE) -f CMakeFiles/Makefile2 common/test/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/moon/server/common && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named common
+# Convenience name for target.
+common/test/CMakeFiles/test.dir/rule:
+	cd /home/moon/server/common && $(MAKE) -f CMakeFiles/Makefile2 common/test/CMakeFiles/test.dir/rule
+.PHONY : common/test/CMakeFiles/test.dir/rule
 
-# Build rule for target.
-common: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 common
-.PHONY : common
-
-# fast build rule for target.
-common/fast:
-	$(MAKE) -f common/CMakeFiles/common.dir/build.make common/CMakeFiles/common.dir/build
-.PHONY : common/fast
-
-#=============================================================================
-# Target rules for targets named test
-
-# Build rule for target.
-test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test
+# Convenience name for target.
+test: common/test/CMakeFiles/test.dir/rule
 .PHONY : test
 
 # fast build rule for target.
 test/fast:
-	$(MAKE) -f common/test/CMakeFiles/test.dir/build.make common/test/CMakeFiles/test.dir/build
+	cd /home/moon/server/common && $(MAKE) -f common/test/CMakeFiles/test.dir/build.make common/test/CMakeFiles/test.dir/build
 .PHONY : test/fast
 
-#=============================================================================
-# Target rules for targets named server
+test.o: test.cc.o
+.PHONY : test.o
 
-# Build rule for target.
-server: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 server
-.PHONY : server
+# target to build an object file
+test.cc.o:
+	cd /home/moon/server/common && $(MAKE) -f common/test/CMakeFiles/test.dir/build.make common/test/CMakeFiles/test.dir/test.cc.o
+.PHONY : test.cc.o
 
-# fast build rule for target.
-server/fast:
-	$(MAKE) -f src/net/CMakeFiles/server.dir/build.make src/net/CMakeFiles/server.dir/build
-.PHONY : server/fast
+test.i: test.cc.i
+.PHONY : test.i
+
+# target to preprocess a source file
+test.cc.i:
+	cd /home/moon/server/common && $(MAKE) -f common/test/CMakeFiles/test.dir/build.make common/test/CMakeFiles/test.dir/test.cc.i
+.PHONY : test.cc.i
+
+test.s: test.cc.s
+.PHONY : test.s
+
+# target to generate assembly for a file
+test.cc.s:
+	cd /home/moon/server/common && $(MAKE) -f common/test/CMakeFiles/test.dir/build.make common/test/CMakeFiles/test.dir/test.cc.s
+.PHONY : test.cc.s
 
 # Help Target
 help:
@@ -145,9 +144,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... common"
 	@echo "... test"
-	@echo "... server"
+	@echo "... test.o"
+	@echo "... test.i"
+	@echo "... test.s"
 .PHONY : help
 
 
@@ -159,6 +159,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/moon/server/common && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

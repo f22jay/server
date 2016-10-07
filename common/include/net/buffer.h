@@ -1,3 +1,4 @@
+/* -*- C++ -*- */
 /***************************************************************************
  *
  * Copyright (c) 2016 Baidu.com, Inc. All Rights Reserved
@@ -26,7 +27,7 @@ namespace net{
         _buffer(kBufferSize) {}
 
     void append(const char *data, int length) {
-      if (writeableSize < length) {
+      if (writeableSize() < length) {
         makeSpace(length);
       }
       std::copy(data, data + length, writeBegin());
@@ -36,7 +37,7 @@ namespace net{
     void retrive(int n) {
       _read_index += n;
     }
-    size_t writeBegin() const {
+    char* writeBegin() {
       return begin() + _write_index;
     }
 
@@ -48,11 +49,11 @@ namespace net{
       return kBufferSize - _read_index;
     }
 
-    const char *begin() const {
-      return &*_buffer.begin();
+    char* begin() {
+      return &_buffer.front();
     }
 
-    const char *data() const {
+    char* data() {
       return begin() + _read_index;
     }
 
@@ -64,7 +65,7 @@ namespace net{
       if (writeableSize() + _read_index < length) {
         _buffer.resize(length - writeableSize());
       } else {
-        std::copy(data(), data() + readableSize, begin());
+        std::copy(data(), data() + readableSize(), begin());
         _write_index -= _read_index;
         _read_index = 0;
       }
@@ -80,4 +81,3 @@ namespace net{
 }//namespace net
 
 #endif  // BUFFER_H
-

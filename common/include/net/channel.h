@@ -1,11 +1,12 @@
-n/***************************************************************************
+/* -*- C++ -*- */
+/***************************************************************************
  *
  * Copyright (c) 2015 Baidu.com, Inc. All Rights Reserved
  * $Id$
  *
  **************************************************************************/
 
- /**
+/**
  * @file channel.h
  * @author moon(moon@baidu.com)
  * @date 2015/12/05 21:12:36
@@ -15,47 +16,47 @@ n/***************************************************************************
  **/
 #ifndef CHANNEL_H
 #define CHANNEL_H
-#include <sys/epoll.h>
-#include <boost/function.hpp>
-#include "event_loop.h"
+#include "function.h"
+/* class Eventloop; if exisit here, is error, not in net */
+
 namespace net {
-class Channel{
-public:
-    Channel(int fd, Eventloop *eventloop, int events=0):_fd(fd),
-                                                      _loop(eventloop),
-                                                      _events(events)
-                                                      _firedEvents(0){}
+class EventLoop;
 
-    bool enableRead();
-    bool disableRead();
-    bool enableWrite();
-    bool disableWrite();
-    void setReadCallBack(EventCallBack rCallBack);
-    void setWriteCallBack(EventCallBack wCallBack);
-    void setCloseCallBack(EventCallBack cCallBack);
-    void remove();
-    bool isWriting();
-    int getFd() { return _fd;}
-    int getEvent() { return _events;}
-    int handleEvent();
-    void setFiredEvents(int event) { this->_firedEvents = event;}
+class Channel {
+ public:
+ Channel(int fd, EventLoop* eventloop, int events = 0)
+      : _fd(fd),
+        _loop(eventloop),
+        _events(events),
+        _firedEvents(0) {}
 
-private:
-    bool update();
-    typedef boost::function<void ()>  EventCallBack;
-    static const int NoneEvent;
-    static const int ReadEvent;
-    static const int WriteEvent;
+  bool enableRead();
+  bool disableRead();
+  bool enableWrite();
+  bool disableWrite();
+  void setReadCallBack(EventCallBack rCallBack);
+  void setWriteCallBack(EventCallBack wCallBack);
+  void setCloseCallBack(EventCallBack cCallBack);
+  void remove();
+  bool isWriting();
+  int getFd() { return _fd;}
+  int getEvent() { return _events;}
+  int handleEvent();
+  void setFiredEvents(int event) { this->_firedEvents = event;}
 
-    int _fd;
-    int _events;
-    int _firedEvents;
-    Eventloop *_loop;
-    EventCallBack _readCallBack;
-    EventCallBack _writeCallBack;
-    EventCallBack _closeCallBack;
+ private:
+  bool update();
+ private:
+  static const int NoneEvent;
+  static const int ReadEvent;
+  static const int WriteEvent;
+  int _fd;
+  int _events;
+  int _firedEvents;
+  EventLoop *_loop;
+  EventCallBack _readCallBack;
+  EventCallBack _writeCallBack;
+  EventCallBack _closeCallBack;
 };
 } //namesapce net
 #endif  // CHANNEL_H
-
-/* vim: set ts=4 sw=4 sts=4 tw=100 */

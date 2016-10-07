@@ -14,24 +14,25 @@
  *
  **/
 
-/* vim: set ts=4 sw=4 sts=4 tw=100 */
-#include "net/event_loop.h"
+#include "event_loop.h"
+#include "channel.h"
+#include "epoll_poller.h"
 
 namespace net {
 
-int EventLoop::updateChannel(Channel *channel) {
+int EventLoop::updateChannel(Channel* channel) {
   return _poller->updateChannel(channel);
 }
 
-int EventLoop::removeChannel(Channel *channel) {
+int EventLoop::removeChannel(Channel* channel) {
   return _poller->removeChannel(channel);
 }
 
-int EventLoop::poll(int timeout) {
+int EventLoop::poll(int timeout, ChannelList* active_channels) {
   while (_state) {
     int ret = _poller->poll(timeout, &_activeList);
     if (ret != 0) {
-      return -1;        /**<  need do something      */
+      return -1;        //<  need do something
     }
 
     for (ChannelList::iterator it = _activeList.begin();

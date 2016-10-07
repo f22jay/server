@@ -1,67 +1,75 @@
-#ifndef _SOCKET_H__107040068846139311_
-#define _SOCKET_H__107040068846139311_
+/* -*- C++ -*- */
+
+#ifndef NET_SOCKET_H
+#define NET_SOCKET_H
+#include <unistd.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <memory.h>
 #include <string>
+#include <string.h>
+#include <log.h>
 
 namespace net {
 const int kMaxCon = 10000;
-class IpAddress
-{
+class IpAddress {
  public:
   friend class Socket;
+  IpAddress() {}
   IpAddress(const char *ip, int port) {
     memset(&_address, 0, sizeof(struct sockaddr_in));
     _address.sin_family = AF_INET;
-    inet_pton(AF_INET,ip,&_address.sin_addr);
+    ::inet_pton(AF_INET, ip, &_address.sin_addr);
     _address.sin_port = htons(port);
   }
 
   IpAddress(struct sockaddr_in &address) {
-    
+    memcpy(&_address, &address, sizeof(sockaddr_in));
   }
 
   std::string toIpPortStr() {
     char buf[64];
-    //todo
-    return std::string();
+    ::inet_ntop(AF_INET, &_address.sin_addr, buf, sizeof(buf));
+    buf[strlen(buf) + 1] = ':';
+    sprintf(buf + strlen(buf) + 1, "%u", ntohs(_address.sin_port));
+    return buf;
   }
-  
-  virtual ~IpAddress();
+
+  virtual ~IpAddress() {}
 
  private:
   struct sockaddr_in _address;
 };
 
-class Socket
-{
+class Socket {
  public:
   Socket() {
     _fd = socket(PF_INET, SOCK_STREAM, 0);
   }
-  virtual ~Socket();
+
+  virtual ~Socket() {}
   //listen request
   bool listen() {
    return ::listen(_fd, kMaxCon) != -1;
   }
   //accept connection, block
   int accept(IpAddress &address) {
-    int len;
-    int connec_fd = ::accept(_fd, (struct sockaddr *)&address._address, &len);
+    socklen_t len = sizeof(address._address);
+    int connec_fd = ::accept(_fd, (struct sockaddr*)&address._address, &len);
     if (connec_fd < 0) {
-      LOG_INFO("accept connect error, listen fd[%d]", _fd);
+      common::LOG_INFO("accept connect error, listen fd[%d]", _fd);
       return -1;
     }
     return connec_fd;
   }
   //bind ip port
   bool bind(IpAddress &address) {
-    return ::bind(_fd, (struct sockaddr *) address._address), sizeof(address._address) != -1;
+    return ::bind(_fd, (struct sockaddr*)&address._address, sizeof(address._address)) != -1;
   }
   int get_fd() {return _fd;}
 
-  static void write(int fd, const char *data, int size) {
+  static int write(int fd, const char *data, int size) {
       return ::write(fd, data, size);
   }
 
@@ -69,8 +77,8 @@ class Socket
       struct sockaddr_in &localaddr = address._address;
       bzero(&localaddr, sizeof localaddr);
       socklen_t addrlen = sizeof(localaddr);
-      if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0) {
-        LOG_INFO("socket::getLocalAddr");
+      if (::getsockname(sockfd, (struct sockaddr*)(&localaddr), &addrlen) < 0) {
+        common::LOG_INFO("socket::getLocalAddr error");
       }
       return;
   }
@@ -79,20 +87,15 @@ class Socket
       struct sockaddr_in peeraddr = address._address;
       bzero(&peeraddr, sizeof peeraddr);
       socklen_t addrlen = sizeof(peeraddr);
-      if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0) {
-          LOG_INFO("socket::getPeerAddr");
+      if (::getpeername(sockfd, (struct sockaddr*)(&peeraddr), &addrlen) < 0) {
+          common::LOG_INFO("socket::getPeerAddr error");
       }
       return;
   }
-  
+
  private:
   int _fd;
 };
 
-}
-
-
+}// namespace common
 #endif
-
-
-

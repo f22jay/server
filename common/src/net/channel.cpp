@@ -15,7 +15,9 @@
  **/
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */
-#include "net/channel.h"
+#include "channel.h"
+#include "event_loop.h"
+
 const int Channel::NoneEvent = 0;
 const int Channel::ReadEvent = POLLIN | POLLPRI;
 const int Channel::WriteEvent = POLLOUT;
@@ -76,13 +78,3 @@ bool Channel::isWriting() {
 }
 
 }//namespace net
-
-
-
-
-
-
-
-
-
-

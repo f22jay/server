@@ -1,0 +1,2 @@
+test: log_test.cc
+	g++ log_test.cc ../src/log.cc  ~/gtest-1.7.0/libgtest.a -I ../include/ -I ~/gtest-1.7.0/include/ -lpthread   -std=c++11

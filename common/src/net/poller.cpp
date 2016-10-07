@@ -15,7 +15,8 @@
  **/
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */
-#include "net/poller.h"
+#include "poller.h"
+#include "channel.h"
 
 namespace net {
 bool Poller::hasChannel(Channel *channel) {
@@ -23,4 +24,3 @@ bool Poller::hasChannel(Channel *channel) {
   return it != _channelMap.end() && it->second == channel;
 }
 }//namesapce net
-
