@@ -1,19 +1,9 @@
 /* -*- C++ -*- */
-/***************************************************************************
- *
- * Copyright (c) 2015 Baidu.com, Inc. All Rights Reserved
- * $Id$
- *
- **************************************************************************/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2015/12/05 21:12:36
+// Breif :
 
-/**
- * @file channel.h
- * @author moon(moon@baidu.com)
- * @date 2015/12/05 21:12:36
- * @version $Revision$
- * @brief
- *
- **/
 #ifndef CHANNEL_H
 #define CHANNEL_H
 #include "function.h"
@@ -54,7 +44,7 @@ class Channel {
   int _fd;
   int _events;
   int _firedEvents;
-  EventLoop *_loop;
+  EventLoop* _loop;
   EventCallBack _readCallBack;
   EventCallBack _writeCallBack;
   EventCallBack _closeCallBack;

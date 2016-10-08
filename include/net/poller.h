@@ -19,7 +19,7 @@ class Poller {
   virtual ~Poller() {}
 
   virtual int updateChannel(Channel* channel) = 0;
-  virtual int addChannel(Channel* channel) = 0;
+  // virtual int addChannel(Channel* channel) = 0;
   virtual int removeChannel(Channel* channel) = 0;
   virtual int poll(int timeout, ChannelList* active_channels) = 0;
   bool hasChannel(Channel* channel);

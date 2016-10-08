@@ -1,9 +1,14 @@
-/* -*- C++ -*- */
+/* -*- C++ -*-*/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/08 17:43:12
+// Breif :
 
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 #include <unistd.h>
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <memory.h>
@@ -17,20 +22,28 @@ class IpAddress {
  public:
   friend class Socket;
   IpAddress() {}
-  IpAddress(const char *ip, int port) {
+
+  IpAddress(int port) {
     memset(&_address, 0, sizeof(struct sockaddr_in));
     _address.sin_family = AF_INET;
-    ::inet_pton(AF_INET, ip, &_address.sin_addr);
+    _address.sin_addr.s_addr = htonl(INADDR_ANY);
     _address.sin_port = htons(port);
   }
 
-  IpAddress(struct sockaddr_in &address) {
-    memcpy(&_address, &address, sizeof(sockaddr_in));
+  IpAddress(const char* ip, int port) {
+    memset(&_address, 0, sizeof(struct sockaddr_in));
+    _address.sin_family = AF_INET;
+    ::inet_pton(AF_INET, ip,& _address.sin_addr);
+    _address.sin_port = htons(port);
+  }
+
+  IpAddress(struct sockaddr_in& address) {
+    memcpy(&_address,& address, sizeof(sockaddr_in));
   }
 
   std::string toIpPortStr() {
     char buf[64];
-    ::inet_ntop(AF_INET, &_address.sin_addr, buf, sizeof(buf));
+    ::inet_ntop(AF_INET,& _address.sin_addr, buf, sizeof(buf));
     buf[strlen(buf) + 1] = ':';
     sprintf(buf + strlen(buf) + 1, "%u", ntohs(_address.sin_port));
     return buf;
@@ -54,9 +67,9 @@ class Socket {
    return ::listen(_fd, kMaxCon) != -1;
   }
   //accept connection, block
-  int accept(IpAddress &address) {
+  int accept(IpAddress& address) {
     socklen_t len = sizeof(address._address);
-    int connec_fd = ::accept(_fd, (struct sockaddr*)&address._address, &len);
+    int connec_fd = ::accept(_fd, (struct sockaddr*)&address._address,& len);
     if (connec_fd < 0) {
       common::LOG_INFO("accept connect error, listen fd[%d]", _fd);
       return -1;
@@ -64,30 +77,45 @@ class Socket {
     return connec_fd;
   }
   //bind ip port
-  bool bind(IpAddress &address) {
+  bool bind(const IpAddress& address) {
     return ::bind(_fd, (struct sockaddr*)&address._address, sizeof(address._address)) != -1;
   }
+
   int get_fd() {return _fd;}
 
-  static int write(int fd, const char *data, int size) {
+  void setNonBlock() {
+    int flags = ::fcntl(_fd, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    int ret = ::fcntl(_fd, F_SETFL, flags);
+  }
+
+  static int shutdown(int fd) {
+    if (::shutdown(fd, SHUT_WR) < 0) {
+      common::LOG_WARNING("shutdown fd[%d] error", fd);
+      return -1;
+    }
+    return 0;
+  }
+
+  static int write(int fd, const char* data, int size) {
       return ::write(fd, data, size);
   }
 
-  static void getLocalAddr(int sockfd, IpAddress &address) {
-      struct sockaddr_in &localaddr = address._address;
+  static void getLocalAddr(int sockfd, IpAddress& address) {
+      struct sockaddr_in& localaddr = address._address;
       bzero(&localaddr, sizeof localaddr);
       socklen_t addrlen = sizeof(localaddr);
-      if (::getsockname(sockfd, (struct sockaddr*)(&localaddr), &addrlen) < 0) {
+      if (::getsockname(sockfd, (struct sockaddr*)(&localaddr),& addrlen) < 0) {
         common::LOG_INFO("socket::getLocalAddr error");
       }
       return;
   }
 
-  static void  getPeerAddr(int sockfd, IpAddress &address) {
+  static void getPeerAddr(int sockfd, IpAddress& address) {
       struct sockaddr_in peeraddr = address._address;
       bzero(&peeraddr, sizeof peeraddr);
       socklen_t addrlen = sizeof(peeraddr);
-      if (::getpeername(sockfd, (struct sockaddr*)(&peeraddr), &addrlen) < 0) {
+      if (::getpeername(sockfd, (struct sockaddr*)(&peeraddr),& addrlen) < 0) {
           common::LOG_INFO("socket::getPeerAddr error");
       }
       return;

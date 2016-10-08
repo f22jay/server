@@ -26,22 +26,23 @@ class TcpServer {
   //new connect come, do
   typedef void (* NewConncetionCallack)(int);
 
-  TcpServer(EventLoop* loop, IpAddress& address, string& name);
+  TcpServer(EventLoop* loop, const IpAddress& address, const string& name);
   virtual ~TcpServer();
-
+  void start();
+  void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
+  void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}
  private:
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);
 
  private:
-  std::unique_ptr<Acceptor> _accept;
+  std::shared_ptr<Acceptor> _accept;
   EventLoop* _loop;
   map<int, TcpConnectionPtr> _tcp_connections;
   NewConncetionCallack _connect_cb;
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
-
 };
 } //namespace net
 

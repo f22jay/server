@@ -17,16 +17,17 @@
 /* vim: set ts=4 sw=4 sts=4 tw=100 */
 #include "channel.h"
 #include <poll.h>
+#include <sys/epoll.h>
 #include "event_loop.h"
-
+#include "log.h"
 
 namespace net {
 const int Channel::NoneEvent = 0;
-const int Channel::ReadEvent = POLLIN | POLLPRI;
-const int Channel::WriteEvent = POLLOUT;
+const int Channel::ReadEvent = EPOLLIN | EPOLLPRI;
+const int Channel::WriteEvent = EPOLLOUT;
 
 bool Channel::enableRead() {
-  _events |= ReadEvent;
+  _events |= (ReadEvent | EPOLLET);
   return update();
 }
 
@@ -64,6 +65,17 @@ bool Channel::update() {
   return 0 == _loop->updateChannel(this);
 }
 int Channel::handleEvent() {
+  if (_firedEvents & EPOLLHUP) {
+    _closeCallBack();
+    common::LOG_DEBUG("closed");
+    return 0;
+  }
+
+  if (_firedEvents & (EPOLLERR)) {
+    common::LOG_DEBUG("error");
+    return 0;
+  }
+
   if (_firedEvents & ReadEvent) {
     _readCallBack();
   }
@@ -72,10 +84,8 @@ int Channel::handleEvent() {
     _writeCallBack();
   }
 
-  if ((_firedEvents & POLLHUP) && !(_firedEvents & POLLIN)) {
-    _closeCallBack();
-  }
   _firedEvents = 0;
+  return 0;
 }
 
 bool Channel::isWriting() {

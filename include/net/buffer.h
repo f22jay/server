@@ -1,19 +1,9 @@
 /* -*- C++ -*- */
-/***************************************************************************
- *
- * Copyright (c) 2016 Baidu.com, Inc. All Rights Reserved
- * $Id$
- *
- **************************************************************************/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/07 19:13:43
+// Breif :
 
-/**
- * @file buffer.h
- * @author zhangfangjie(zhangfangjie@baidu.com)
- * @date 2016/03/07 19:13:43
- * @version $Revision$
- * @brief
- *
- **/
 #ifndef NET_BUFFER_H
 #define NET_BUFFER_H
 #include <vector>
@@ -37,6 +27,7 @@ class Buffer {
   void retrive(int n) {
     _read_index += n;
   }
+
   char* writeBegin() {
     return begin() + _write_index;
   }
@@ -59,6 +50,8 @@ class Buffer {
 
   void clear() {
     _read_index = _write_index = 0;
+    std::vector<char> buf(kBufferSize);
+    _buffer.swap(buf);
   }
 
   void makeSpace(size_t length) {

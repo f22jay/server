@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 // Copyright 2016 Baidu Inc. All Rights Reserved.
 // Author : moon (moon@baidu.com)
-//
+// Date 2016/03/08 17:39:32
 // Breif :listen port, accept connect request
 
 #ifndef NET_ACCEPTOR_H
@@ -16,16 +16,16 @@ class Socket;
 
 class Acceptor: public std::enable_shared_from_this<Acceptor> {
  public:
-  Acceptor(EventLoop* loop, NewConncetionCallack cb, IpAddress &address);
+  Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress &address);
   virtual ~Acceptor();
-
+  void listen();
  private:
   void handleRead();
   void setConnectionCallBack(NewConncetionCallack cb) {_connect_cb = cb;}
 
  private:
-  Socket* _sock;
   EventLoop* _loop;
+  std::unique_ptr<Socket> _sock;
   std::unique_ptr<Channel> _channel;
   NewConncetionCallack _connect_cb;
 };

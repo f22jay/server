@@ -1,4 +1,9 @@
 /* -*- C++ -*- */
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/08 17:41:38
+// Breif :
+
 #ifndef NET_FUNCTION_H
 #define NET_FUNCTION_H
 #include <functional>

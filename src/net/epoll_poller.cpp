@@ -1,25 +1,19 @@
-/***************************************************************************
- *
- *  Copyright (c) 2015 Inc. All Rights Reserved
- *  $Id$
- *
- * *************************************************************************/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2015/12/26 17:08:53
+// Breif :
 
-/**
- *  @file epoll_poller.cpp
- *  @author moon(f22jay@gmail.com)
- *  @date 2015/12/26 17:08:53
- *  @version $Revision$
- *  @brief
- *
- * */
+#include "epoll_poller.h"
 #include <sys/epoll.h>
 #include <unistd.h>
-#include "epoll_poller.h"
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+#include "log.h"
 
 namespace net {
-
-EpollPoller::EpollPoller() {
+const int kEventInitialSize = 32;
+EpollPoller::EpollPoller(): _eventList(kEventInitialSize){
   // _epfd = epoll_create1(0);
   _epfd = epoll_create(1024);
 
@@ -35,6 +29,7 @@ int EpollPoller::updateEvent(int op, Channel* channel) {
   ee.events = channel->get_event();
   ee.data.u64 = 0;
   ee.data.fd = fd;
+  common::LOG_DEBUG("update _epfd[%d] op[%d] fd[%d] events[%d]", _epfd, op, fd, ee.events);
   return epoll_ctl(this->_epfd, op, fd, &ee);
 }
 
@@ -43,8 +38,7 @@ int EpollPoller::updateChannel(Channel* channel) {
   int op;
   if (_channelMap.find(fd) != _channelMap.end()) {
     op =EPOLL_CTL_MOD;
-  }
-  else {
+  } else {
     op = EPOLL_CTL_ADD;
     _channelMap.insert(std::make_pair(fd, channel));
   }
@@ -56,23 +50,28 @@ int EpollPoller::removeChannel(Channel* channel) {
   if (_channelMap.find(fd) == _channelMap.end()) {
     return 0;
   }
-  if ( -1 != updateEvent(EPOLL_CTL_DEL, channel)) {
+  if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
     _channelMap.erase(_channelMap.find(fd));
     return 0;
-  }
-  else {
+  } else {
+    common::LOG_INFO("remove fd[%d] error", fd);
     return -1;
   }
 }
 
 int EpollPoller::poll(int timeout, ChannelList* active_channels) {
+  assert(_eventList.size() > 0);
+  assert(_epfd > 0);
   int num_events = ::epoll_wait(_epfd,
                                 &*(this->_eventList.begin()),
-                                _eventList.size(), timeout);
-  if (num_events < 0) {
-    return num_events;
+                                _eventList.size(),
+                                timeout);
+  if(num_events < 0) {
+    common::LOG_FATAL("%s", strerror(errno));
+    return -1;
   }
-  for (int i=0; i < num_events; i++) {
+  // common::LOG_INFO("epoll num_events[%d]", num_events);
+  for (int i = 0; i < num_events; i++) {
     int fired_fd = _eventList[i].data.fd;
     auto iter = _channelMap.find(fired_fd);
     if (iter == _channelMap.end()) {

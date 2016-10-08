@@ -10,9 +10,9 @@ namespace net {
 
 TcpServer::TcpServer(
     EventLoop* loop,
-    IpAddress& listen_address,
-    string& name)
-    : _accept(new Acceptor(loop, std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2), listen_address)), _name(name) {
+    const IpAddress& listen_address,
+    const string& name)
+    : _accept(new Acceptor(loop, std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2), listen_address)), _name(name), _loop(loop) {
 }
 
 TcpServer::~TcpServer() {
@@ -22,11 +22,16 @@ TcpServer::~TcpServer() {
   }
 }
 
+void TcpServer::start() {
+  _accept->listen();
+}
+
 void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   IpAddress local_address;
   Socket::getLocalAddr(fd, local_address);
   //todo name
   TcpConnectionPtr conn(new TcpConnection(_loop, fd, "", local_address, peer_address));
+  conn->init_callback();
   _tcp_connections.insert(std::make_pair(fd, conn));
   conn->setMessageCallBack(_message_cb);
   conn->setCloseCallBack(std::bind(&TcpServer::removeTcpConnection, this, std::placeholders::_1));
@@ -40,10 +45,10 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
 void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
   auto it = _tcp_connections.find(conn->get_fd());
   if (it == _tcp_connections.end()) {
-      common::LOG_INFO("remove connection, fd [%d]null", conn->get_fd());
+      common::LOG_INFO("cannot find connection fd [%d] ", conn->get_fd());
       return;
   }
   _tcp_connections.erase(it);
-  common::LOG_INFO("remove connection, fd[%d]", conn->get_fd());
+  common::LOG_INFO("remove connection fd[%d] suc", conn->get_fd());
 }
 }//namespace net

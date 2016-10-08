@@ -1,6 +1,6 @@
 // Copyright maverick Inc. All Rights Reserved.
 // Author : zhangfangjie (f22jay@163.com)
-// Date 2015/12/08 15:34:53
+// Date 2016/03/09 15:34:53
 // Breif :
 
 #include "acceptor.h"
@@ -10,15 +10,21 @@
 #include "log.h"
 
 namespace net {
-Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, IpAddress& address)
+Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress& address)
     : _loop(loop),
       _connect_cb(cb),
       _sock(new Socket()),
       _channel(new Channel(_sock->get_fd(), _loop)) {
-  _sock->listen();
   _sock->bind(address);
+  _sock->setNonBlock();
+}
+Acceptor::~Acceptor() {}
+
+void Acceptor::listen() {
+  _sock->listen();
   _channel->setReadCallBack(std::bind(&Acceptor::handleRead, shared_from_this()));
   _channel->enableRead();
+  common::LOG_DEBUG("acceptor listen");
 }
 
 void Acceptor::handleRead() {
@@ -28,9 +34,8 @@ void Acceptor::handleRead() {
     common::LOG_FATAL("accept error");
     return;
   }
-  common::LOG_INFO("accept [%s] connect", address.toIpPortStr().c_str());
+  common::LOG_DEBUG("accept [%s] connect", address.toIpPortStr().c_str());
   _connect_cb(accept_fd, address);
 }
-
 
 }//namespace net

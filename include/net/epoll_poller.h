@@ -17,7 +17,7 @@ class EpollPoller : public Poller {
   EpollPoller();
   ~EpollPoller();
   virtual int updateChannel(Channel* channel);
-  virtual int addChannel(Channel* channel);
+  // virtual int addChannel(Channel* channel);
   virtual int removeChannel(Channel* channel);
   virtual int poll(int timeout, ChannelList* active_channels);
   int updateEvent(int op, Channel* channel);

@@ -1,4 +1,9 @@
 /* -*- C++ -*- */
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/10/08 17:43:26
+// Breif :
+
 #ifndef NET_TCP_CONNECTION_H
 #define NET_TCP_CONNECTION_H
 #include <memory>
@@ -20,14 +25,16 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   virtual ~TcpConnection();
 
   int get_fd() {return _fd;}
+  void init_callback();
+  int shutdown() {return Socket::shutdown(_fd);}
   void setCloseCallBack(CloseCallBack cb) {_close_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) { _write_cb = cb;}
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
   void connectEstablished() {_channel->enableRead();}
   void connectDestroied();
+  void send(const char* data, int size);
 
  private:
-  void send(const char* data, int size);
   void handleRead();
   void handleWrite();
   void handleClose();
