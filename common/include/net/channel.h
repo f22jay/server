@@ -38,9 +38,10 @@ class Channel {
   void setWriteCallBack(EventCallBack wCallBack);
   void setCloseCallBack(EventCallBack cCallBack);
   void remove();
+  void disableAll() {_events = NoneEvent; update();}
   bool isWriting();
-  int getFd() { return _fd;}
-  int getEvent() { return _events;}
+  int get_fd() { return _fd;}
+  int get_event() { return _events;}
   int handleEvent();
   void setFiredEvents(int event) { this->_firedEvents = event;}
 

@@ -14,7 +14,7 @@ class Channel;
 class IpAddress;
 class Socket;
 
-class Acceptor {
+class Acceptor: public std::enable_shared_from_this<Acceptor> {
  public:
   Acceptor(EventLoop* loop, NewConncetionCallack cb, IpAddress &address);
   virtual ~Acceptor();

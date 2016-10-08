@@ -44,12 +44,12 @@ void TcpConnection::handleWrite() {
 }
 
 void TcpConnection::connectDestroied() {
-  // todo
-  // _channel->disableAll();
+  _channel->disableAll();
   _channel->remove();
 }
 
 void TcpConnection::handleClose() {
+  _channel->disableAll();
   _close_cb(shared_from_this());
 }
 

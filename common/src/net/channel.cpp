@@ -16,13 +16,15 @@
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 */
 #include "channel.h"
+#include <poll.h>
 #include "event_loop.h"
 
+
+namespace net {
 const int Channel::NoneEvent = 0;
 const int Channel::ReadEvent = POLLIN | POLLPRI;
 const int Channel::WriteEvent = POLLOUT;
 
-namespace net {
 bool Channel::enableRead() {
   _events |= ReadEvent;
   return update();
@@ -51,7 +53,7 @@ void Channel::setWriteCallBack(EventCallBack wCallBack) {
 }
 
 void Channel::setCloseCallBack(EventCallBack cCallBack) {
-  _close_cb = cCallBack;
+  _closeCallBack = cCallBack;
 }
 
 void Channel::remove() {
@@ -70,6 +72,9 @@ int Channel::handleEvent() {
     _writeCallBack();
   }
 
+  if ((_firedEvents & POLLHUP) && !(_firedEvents & POLLIN)) {
+    _closeCallBack();
+  }
   _firedEvents = 0;
 }
 

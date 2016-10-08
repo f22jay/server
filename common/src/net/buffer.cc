@@ -1,26 +1,13 @@
-/***************************************************************************
- *
- * Copyright (c) 2016 Baidu.com, Inc. All Rights Reserved
- * $Id$
- *
- **************************************************************************/
-
-/**
- * @file src/net/buffer.c
- * @author zhangfangjie(zhangfangjie@baidu.com)
- * @date 2016/03/08 19:41:19
- * @version $Revision$
- * @brief
- *
- **/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/08 19:41:19
+// Breif :
+#include "buffer.h"
 #include <sys/uio.h>
 #include <error.h>
-#include "buffer.h"
 
 namespace net {
-
-ssize_t Buffer::readFd(int fd, int* savedErrno)
-{
+ssize_t Buffer::readFd(int fd, int* savedErrno) {
   char extrabuf[65536];
   struct iovec vec[2];
   size_t writable = writeableSize();
@@ -33,8 +20,7 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
     *savedErrno = errno;
   } else if (static_cast<size_t>(n) <= writable) {
     _write_index += n;
-  }
-  else {
+  } else {
     _write_index = _buffer.size();
     append(extrabuf, n - writable);
   }

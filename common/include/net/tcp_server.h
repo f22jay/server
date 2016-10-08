@@ -1,4 +1,9 @@
 /* -*- C++ -*-*/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/10/08 15:39:56
+// Breif :
+
 #ifndef NET_TCP_SERVER_H
 #define NET_TCP_SERVER_H
 #include <map>
@@ -14,6 +19,7 @@ class EventLoop;
 class Buffer;
 using std::string;
 using std::map;
+
 class TcpServer {
  public:
   typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
@@ -24,6 +30,10 @@ class TcpServer {
   virtual ~TcpServer();
 
  private:
+  void newConnection(int fd, IpAddress& );
+  void removeTcpConnection(const TcpConnectionPtr& conn);
+
+ private:
   std::unique_ptr<Acceptor> _accept;
   EventLoop* _loop;
   map<int, TcpConnectionPtr> _tcp_connections;
@@ -31,8 +41,7 @@ class TcpServer {
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
-  void newConnection(int fd, IpAddress& );
-  void removeTcpConnection(const TcpConnectionPtr& conn);
+
 };
 } //namespace net
 

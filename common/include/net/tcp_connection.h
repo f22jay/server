@@ -10,7 +10,6 @@
 
 namespace net {
 class EventLoop;
-
 class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
  public:
   TcpConnection(EventLoop* loop,

@@ -14,9 +14,14 @@ TcpServer::TcpServer(
     string& name)
     : _accept(new Acceptor(loop, std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2), listen_address)), _name(name) {
 }
+
 TcpServer::~TcpServer() {
   //todo
+  for(const auto& it: _tcp_connections) {
+    it.second->connectDestroied();
+  }
 }
+
 void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   IpAddress local_address;
   Socket::getLocalAddr(fd, local_address);
@@ -35,8 +40,8 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
 void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
   auto it = _tcp_connections.find(conn->get_fd());
   if (it == _tcp_connections.end()) {
-    LOG_INFO("remove connection, fd [%d]null", conn->get_fd());
-    return;
+      common::LOG_INFO("remove connection, fd [%d]null", conn->get_fd());
+      return;
   }
   _tcp_connections.erase(it);
   common::LOG_INFO("remove connection, fd[%d]", conn->get_fd());

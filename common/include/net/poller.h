@@ -1,19 +1,9 @@
-/* -*- C++ -*-* /
-/***************************************************************************
-*
-*  Copyright (c) 2015 Inc. All Rights Reserved
-*  $Id$
-*
-* *************************************************************************/
+/* -*- C++ -*-*/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2015/12/26 14:42:48
+// Breif :
 
-/**
-*  @file poller.h
-*  @author moon(f22jay@gmail.com)
-*  @date 2015/12/26 14:42:48
-*  @version $Revision$
-*  @brief
-*
-* */
 #ifndef POLLER_H
 #define POLLER_H
 #include <map>
@@ -34,7 +24,7 @@ class Poller {
   virtual int poll(int timeout, ChannelList* active_channels) = 0;
   bool hasChannel(Channel* channel);
 
- private:
+ protected:
   ChannelMap _channelMap;
 };
 } //namespace net

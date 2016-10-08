@@ -20,7 +20,7 @@
 
 namespace net {
 bool Poller::hasChannel(Channel *channel) {
-  ChannelMap::const_iterator it = _channelMap.find(channel->getFd());
+  ChannelMap::const_iterator it = _channelMap.find(channel->get_fd());
   return it != _channelMap.end() && it->second == channel;
 }
 }//namesapce net
