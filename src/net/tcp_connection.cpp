@@ -8,10 +8,9 @@ using std::string;
 TcpConnection::TcpConnection(
     EventLoop* loop,
     int fd,
-    const string& name,
     const IpAddress& local_address,
     const IpAddress& remote_address)
-    : _loop(loop), _fd(fd), _name(name),
+    : _loop(loop), _sock(new Socket(fd)),
       _channel(new Channel(fd, loop)),
       _local_address(local_address),
       _remote_address(remote_address) {
@@ -28,15 +27,18 @@ TcpConnection::TcpConnection(
 TcpConnection::~TcpConnection() {}
 
 void TcpConnection::init_callback() {
-  _channel->setReadCallBack(std::bind(&TcpConnection::handleRead, shared_from_this()));
-  _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, shared_from_this()));
-  _channel->setCloseCallBack(std::bind(&TcpConnection::handleClose, shared_from_this()));
+  // this cannot be shared_from_this, ohterwise shared_ptr use_count > 2,
+  // tcpconnection can not be destructed
+  _channel->setReadCallBack(std::bind(&TcpConnection::handleRead, this));
+  _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, this));
+  _channel->setCloseCallBack(std::bind(&TcpConnection::handleClose, this));
 }
 
 void TcpConnection::handleRead() {
   // int errno;
   _input_buffer.clear();
-  ssize_t size = _input_buffer.readFd(_fd, &errno);
+  ssize_t size = _input_buffer.readFd(_sock->get_fd(), &errno);
+  common::LOG_DEBUG("read size [%d]", size);
   if (size < 0) {
     common::LOG_INFO("read error [%s]", strerror(errno));
     // common::LOG_INFO("read error ");
@@ -47,7 +49,8 @@ void TcpConnection::handleRead() {
 }
 
 void TcpConnection::handleWrite() {
-  int n = Socket::write(_fd, _output_buffer.data(), _output_buffer.readableSize());
+  int n = Socket::write(_sock->get_fd(), _output_buffer.data(), _output_buffer.readableSize());
+  common::LOG_DEBUG("write size [%d]", n);
   if (n > 0) {
     _output_buffer.retrive(n);
     if (_output_buffer.readableSize() == 0) {
@@ -68,6 +71,7 @@ void TcpConnection::connectDestroied() {
 }
 
 void TcpConnection::handleClose() {
+  common::LOG_DEBUG("close tcpconnection fd[%d]", get_fd());
   _channel->remove();
   _close_cb(shared_from_this());
 }
@@ -75,7 +79,7 @@ void TcpConnection::handleClose() {
 void TcpConnection::send(const char *data, int size) {
   ssize_t wrote = 0;
   if (! _channel->isWriting() && _output_buffer.readableSize() == 0) {
-    wrote = Socket::write(_fd, data, size);
+    wrote = Socket::write(_sock->get_fd(), data, size);
     if (wrote == size) {
       if (_write_cb) {
         _write_cb(shared_from_this());

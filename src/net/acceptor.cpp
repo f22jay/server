@@ -5,6 +5,7 @@
 
 #include "acceptor.h"
 #include <functional>
+#include <assert.h>
 #include "socket.h"
 #include "channel.h"
 #include "log.h"
@@ -15,7 +16,7 @@ Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress& ad
       _connect_cb(cb),
       _sock(new Socket()),
       _channel(new Channel(_sock->get_fd(), _loop)) {
-  _sock->bind(address);
+  assert(_sock->bind(address));
   _sock->setNonBlock();
 }
 Acceptor::~Acceptor() {}

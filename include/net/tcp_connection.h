@@ -7,7 +7,6 @@
 #ifndef NET_TCP_CONNECTION_H
 #define NET_TCP_CONNECTION_H
 #include <memory>
-#include <string>
 #include "function.h"
 #include "channel.h"
 #include "socket.h"
@@ -19,14 +18,13 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
  public:
   TcpConnection(EventLoop* loop,
                 int fd,
-                const std::string& name,
                 const IpAddress& local_address,
                 const IpAddress& remote_address);
   virtual ~TcpConnection();
 
-  int get_fd() {return _fd;}
+  int get_fd() {return _sock->get_fd();}
   void init_callback();
-  int shutdown() {return Socket::shutdown(_fd);}
+  int shutdown() {return Socket::shutdown(get_fd());}
   void setCloseCallBack(CloseCallBack cb) {_close_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) { _write_cb = cb;}
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
@@ -43,8 +41,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   EventLoop* _loop;
   IpAddress _local_address;
   IpAddress _remote_address;
-  int _fd;
-  std::string _name;
+  std::unique_ptr<Socket> _sock;;
   std::unique_ptr<Channel> _channel;
   MessageCallBack _message_cb;
   WriteCompleteCallBack _write_cb;

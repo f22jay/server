@@ -30,7 +30,7 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   IpAddress local_address;
   Socket::getLocalAddr(fd, local_address);
   //todo name
-  TcpConnectionPtr conn(new TcpConnection(_loop, fd, "", local_address, peer_address));
+  TcpConnectionPtr conn(new TcpConnection(_loop, fd, local_address, peer_address));
   conn->init_callback();
   _tcp_connections.insert(std::make_pair(fd, conn));
   conn->setMessageCallBack(_message_cb);
@@ -40,6 +40,7 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   common::LOG_INFO("connection fd[%d], peer[%s]\n", fd, peer_address.toIpPortStr().c_str());
   //activate connection
   conn->connectEstablished();
+  // common::LOG_DEBUG("connection use_conut[%d]", conn.use_count());
 }
 
 void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
@@ -49,6 +50,6 @@ void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
       return;
   }
   _tcp_connections.erase(it);
-  common::LOG_INFO("remove connection fd[%d] suc", conn->get_fd());
+  common::LOG_INFO("remove connection fd[%d] suc, use count[%d]", conn->get_fd(), conn.use_count());
 }
 }//namespace net

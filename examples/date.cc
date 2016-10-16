@@ -4,7 +4,7 @@
 // Breif :
 
 #include "date.h"
-#include "string.h"
+#include <string.h>
 #include "tcp_connection.h"
 #include "event_loop.h"
 
@@ -25,6 +25,7 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     time(&now);
     int size = snprintf(buf, 100, "%s", ctime(&now));
     conn->send(buf, size);
+    // common::LOG_DEBUG("connection use_conut[%d]", conn.use_count());
     // conn->shutdown();
   }
 

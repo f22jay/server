@@ -44,7 +44,7 @@ class IpAddress {
   std::string toIpPortStr() {
     char buf[64];
     ::inet_ntop(AF_INET,& _address.sin_addr, buf, sizeof(buf));
-    buf[strlen(buf) + 1] = ':';
+    buf[strlen(buf)] = ':';
     sprintf(buf + strlen(buf) + 1, "%u", ntohs(_address.sin_port));
     return buf;
   }
@@ -61,7 +61,14 @@ class Socket {
     _fd = socket(PF_INET, SOCK_STREAM, 0);
   }
 
-  virtual ~Socket() {}
+  Socket(int fd) {
+    _fd = fd;
+  }
+
+  virtual ~Socket() {
+    ::close(_fd);
+    common::LOG_INFO("close fd[%d]", _fd);
+  }
   //listen request
   bool listen() {
    return ::listen(_fd, kMaxCon) != -1;

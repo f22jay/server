@@ -48,6 +48,10 @@ class Buffer {
     return begin() + _read_index;
   }
 
+  int size() {
+    return _buffer.size();
+  }
+
   void clear() {
     _read_index = _write_index = 0;
     std::vector<char> buf(kBufferSize);
@@ -56,7 +60,7 @@ class Buffer {
 
   void makeSpace(size_t length) {
     if (writeableSize() + _read_index < length) {
-      _buffer.resize(length - writeableSize());
+      _buffer.resize(length);
     } else {
       std::copy(data(), data() + readableSize(), begin());
       _write_index -= _read_index;
