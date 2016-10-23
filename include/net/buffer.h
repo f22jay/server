@@ -8,6 +8,7 @@
 #define NET_BUFFER_H
 #include <vector>
 #include <algorithm>
+#include "log.h"
 
 namespace net{
 class Buffer {
@@ -15,6 +16,8 @@ class Buffer {
   Buffer():_read_index(0),
            _write_index(0),
            _buffer(kBufferSize) {}
+  ~Buffer() {common::LOG_DEBUG("read_index[%d], write_index[%d], buffer size[%d]",
+                               _read_index, _write_index, _buffer.size());}
 
   void append(const char *data, int length) {
     if (writeableSize() < length) {
@@ -37,7 +40,7 @@ class Buffer {
   }
 
   size_t writeableSize() const {
-    return kBufferSize - _read_index;
+    return kBufferSize - _write_index;
   }
 
   char* begin() {
@@ -54,14 +57,15 @@ class Buffer {
 
   void clear() {
     _read_index = _write_index = 0;
-    std::vector<char> buf(kBufferSize);
-    _buffer.swap(buf);
+    // std::vector<char> buf(kBufferSize);
+    // _buffer.swap(buf);
   }
 
   void makeSpace(size_t length) {
-    if (writeableSize() + _read_index < length) {
-      _buffer.resize(length);
-    } else {
+    //buffer not used size < length
+    if (size() - readableSize()  < length) {
+      _buffer.resize(length + size());
+    } else { //just move
       std::copy(data(), data() + readableSize(), begin());
       _write_index -= _read_index;
       _read_index = 0;
@@ -70,7 +74,7 @@ class Buffer {
   ssize_t readFd(int fd, int* savedErrno);
  private:
   std::vector<char> _buffer;
-  static const size_t kBufferSize = 1024;
+  static const size_t kBufferSize = 10240;
   size_t _read_index;
   size_t _write_index;
 };

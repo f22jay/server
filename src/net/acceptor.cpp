@@ -11,6 +11,8 @@
 #include "log.h"
 
 namespace net {
+int g_accept_num = 0;
+
 Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress& address)
     : _loop(loop),
       _connect_cb(cb),
@@ -37,6 +39,7 @@ void Acceptor::handleRead() {
   }
   common::LOG_DEBUG("accept [%s] connect", address.toIpPortStr().c_str());
   _connect_cb(accept_fd, address);
+  g_accept_num++;
 }
 
 }//namespace net

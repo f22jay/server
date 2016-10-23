@@ -9,13 +9,16 @@
 #include "event_loop.h"
 
 namespace net {
+extern int g_accept_num;
+extern int g_event_num;
+
 DateServer::DateServer(net::EventLoop* loop, net::IpAddress& address, const std::string& name):
     _server(loop, address, name) {}
 
 DateServer::~DateServer() {}
 
 void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
-    common::LOG_INFO("read: [%s]", buffer->data());
+    // common::LOG_INFO("read: [%s]", buffer->data());
     if (memcmp("exit", buffer->data(), 4) == 0) {
       conn->shutdown();
       return;
@@ -25,6 +28,7 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     time(&now);
     int size = snprintf(buf, 100, "%s", ctime(&now));
     conn->send(buf, size);
+    common::LOG_DEBUG("[g_accept_num:%d], [g_event_num:%d]", g_accept_num, g_event_num);
     // common::LOG_DEBUG("connection use_conut[%d]", conn.use_count());
     // conn->shutdown();
   }

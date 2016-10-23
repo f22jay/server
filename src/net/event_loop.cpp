@@ -30,7 +30,8 @@ int EventLoop::removeChannel(Channel* channel) {
 int EventLoop::poll(int timeout) {
   while (_state) {
     _activeList.clear();
-    assert(-1 != _poller->poll(timeout, &_activeList));
+    // assert(-1 != _poller->poll(timeout, &_activeList));
+    _poller->poll(timeout, &_activeList);
     for (const auto& channel: _activeList) {
       channel->handleEvent();
     }

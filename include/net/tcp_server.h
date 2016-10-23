@@ -43,6 +43,8 @@ class TcpServer {
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
+  int64_t _conn_num;
+  int _eventloop_num;
 };
 } //namespace net
 

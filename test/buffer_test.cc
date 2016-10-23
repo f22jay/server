@@ -13,15 +13,15 @@ void TEST_apend() {
   assert(buffer.readableSize() == 0);
   assert(buffer.writeableSize() == 1024);
 
-  char buf[10000] = "0";
-  memset(buf, 0, 10000);
-  memset(buf, '-', 9000);
+  char buf[100000] = "0";
+  memset(buf, 0, 100000);
+  memset(buf, '-', 1034);
   char* before_write_idx = buffer.writeBegin();
-  buffer.append(buf, 9000);
+  buffer.append(buf, 1034);
   char* after_write_idx = buffer.writeBegin();
-  assert(buffer.readableSize() == 9000);
-  assert(0 == memcmp(buf, buffer.data(), 9000));
-  assert(buffer.size() == 9000);
+  assert(buffer.readableSize() == 1034);
+  assert(0 == memcmp(buf, buffer.data(), 1034));
+  assert(buffer.size() == 1034);
 
   // assert(9000 == after_write_idx - before_write_idx);
 }

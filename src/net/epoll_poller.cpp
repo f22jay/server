@@ -13,6 +13,7 @@
 
 namespace net {
 const int kEventInitialSize = 32;
+int g_event_num = 0;
 EpollPoller::EpollPoller(): _eventList(kEventInitialSize){
   // _epfd = epoll_create1(0);
   _epfd = epoll_create(1024);
@@ -41,7 +42,8 @@ int EpollPoller::updateChannel(Channel* channel) {
   } else {
     op = EPOLL_CTL_ADD;
     _channelMap.insert(std::make_pair(fd, channel));
-  }
+     common::LOG_INFO("add channel fd[%d] suc", fd);
+ }
   return updateEvent(op, channel);
 }
 
@@ -52,9 +54,10 @@ int EpollPoller::removeChannel(Channel* channel) {
   }
   if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
     _channelMap.erase(_channelMap.find(fd));
+    common::LOG_INFO("remove channel fd[%d] suc", fd);
     return 0;
   } else {
-    common::LOG_INFO("remove fd[%d] error", fd);
+    common::LOG_INFO("remove channel fd[%d] fail", fd);
     return -1;
   }
 }
@@ -82,6 +85,7 @@ int EpollPoller::poll(int timeout, ChannelList* active_channels) {
     active_channels->push_back(channel);
   }
 
+  g_event_num += num_events;
   return num_events;
 }
 } //namespace net

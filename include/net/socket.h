@@ -44,8 +44,9 @@ class IpAddress {
   std::string toIpPortStr() {
     char buf[64];
     ::inet_ntop(AF_INET,& _address.sin_addr, buf, sizeof(buf));
-    buf[strlen(buf)] = ':';
-    sprintf(buf + strlen(buf) + 1, "%u", ntohs(_address.sin_port));
+    int len = strlen(buf);
+    buf[len] = ':';
+    sprintf(buf + len + 1, "%d", ntohs(_address.sin_port));
     return buf;
   }
 
