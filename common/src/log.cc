@@ -21,6 +21,7 @@ void Logger::Log(const char* fmt, ...) {
   // try twice, if buffer is not enough ,then bigger
   for (int i = 0; i < 2; i++) {
     if (i == 1) {
+      delete[] buf;
       buf = new char[20000];
       limit = buf + 20000;
     }
@@ -43,8 +44,6 @@ void Logger::Log(const char* fmt, ...) {
     va_list backup;
     va_copy(backup, ap);
     p += vsnprintf(p, limit - p, fmt, backup);
-    *p = '\n';
-    p++;
 
     //buf is full
     if (p >= limit) {
@@ -55,9 +54,13 @@ void Logger::Log(const char* fmt, ...) {
         //truncate log msg
       }
     }
+    *p = '\n';
+    p++;
+
     fwrite(buf, sizeof(char), p - buf, file_);
     break;
   }
+  delete[] buf;
 }
 
 FILE *g_log_file = stdout;

@@ -29,6 +29,7 @@ class TcpServer {
   TcpServer(EventLoop* loop, const IpAddress& address, const string& name);
   virtual ~TcpServer();
   void start();
+  // void stop();
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}
  private:

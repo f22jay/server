@@ -5,6 +5,7 @@
 
 #include "date.h"
 #include <string.h>
+#include <stdio.h>
 #include "tcp_connection.h"
 #include "event_loop.h"
 
@@ -19,7 +20,8 @@ DateServer::~DateServer() {}
 
 void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     // common::LOG_INFO("read: [%s]", buffer->data());
-    if (memcmp("exit", buffer->data(), 4) == 0) {
+  // printf("read: [%d]", buffer->size());
+  if (memcmp("exit", buffer->data(), 4) == 0) {
       conn->shutdown();
       return;
     }
@@ -46,6 +48,6 @@ int main(int argc, char *argv[])
   std::string name = "date";
   net::DateServer server(loop, address, name);
   server.start();
-  loop->poll();
+  // loop->poll();
   return 0;
 }

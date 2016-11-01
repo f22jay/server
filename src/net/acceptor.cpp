@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "socket.h"
 #include "channel.h"
+#include "event_loop.h"
 #include "log.h"
 
 namespace net {
@@ -37,9 +38,13 @@ void Acceptor::handleRead() {
     common::LOG_FATAL("accept error");
     return;
   }
-  common::LOG_DEBUG("accept [%s] connect", address.toIpPortStr().c_str());
   _connect_cb(accept_fd, address);
   g_accept_num++;
+}
+
+void Acceptor::handleClose() {
+  common::LOG_FATAL("NOTICE: Acceptor closed!!!!!!!");
+  _loop->stop();
 }
 
 }//namespace net

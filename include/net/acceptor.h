@@ -21,6 +21,7 @@ class Acceptor: public std::enable_shared_from_this<Acceptor> {
   void listen();
  private:
   void handleRead();
+  void handleClose();
   void setConnectionCallBack(NewConncetionCallack cb) {_connect_cb = cb;}
 
  private:

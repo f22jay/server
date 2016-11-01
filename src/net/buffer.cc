@@ -24,8 +24,8 @@ ssize_t Buffer::readFd(int fd, int* savedErrno) {
     _write_index = _buffer.size();
     append(extrabuf, n - writable);
   }
-  // _buffer.insert(_buffer.end(), '\0');
-  _buffer.back()='\0';
+  _buffer.insert(_buffer.end(), '\0');
+  // _buffer.back()='\0';
   return n;
 }
 }

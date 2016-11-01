@@ -30,7 +30,7 @@ int EpollPoller::updateEvent(int op, Channel* channel) {
   ee.events = channel->get_event();
   ee.data.u64 = 0;
   ee.data.fd = fd;
-  common::LOG_DEBUG("update _epfd[%d] op[%d] fd[%d] events[%d]", _epfd, op, fd, ee.events);
+  // common::LOG_DEBUG("update _epfd[%d] op[%d] fd[%d] events[%d]", _epfd, op, fd, ee.events);
   return epoll_ctl(this->_epfd, op, fd, &ee);
 }
 
@@ -42,7 +42,7 @@ int EpollPoller::updateChannel(Channel* channel) {
   } else {
     op = EPOLL_CTL_ADD;
     _channelMap.insert(std::make_pair(fd, channel));
-     common::LOG_INFO("add channel fd[%d] suc", fd);
+     // common::LOG_INFO("add channel fd[%d] suc", fd);
  }
   return updateEvent(op, channel);
 }
@@ -54,10 +54,10 @@ int EpollPoller::removeChannel(Channel* channel) {
   }
   if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
     _channelMap.erase(_channelMap.find(fd));
-    common::LOG_INFO("remove channel fd[%d] suc", fd);
+    // common::LOG_INFO("remove channel fd[%d] suc", fd);
     return 0;
   } else {
-    common::LOG_INFO("remove channel fd[%d] fail", fd);
+    // common::LOG_INFO("remove channel fd[%d] fail", fd);
     return -1;
   }
 }
@@ -85,6 +85,9 @@ int EpollPoller::poll(int timeout, ChannelList* active_channels) {
     active_channels->push_back(channel);
   }
 
+  if (num_events == _eventList.size()) {
+    _eventList.resize(num_events * 2);
+  }
   g_event_num += num_events;
   return num_events;
 }

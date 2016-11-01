@@ -68,7 +68,6 @@ class Socket {
 
   virtual ~Socket() {
     ::close(_fd);
-    common::LOG_INFO("close fd[%d]", _fd);
   }
   //listen request
   bool listen() {

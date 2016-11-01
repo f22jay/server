@@ -21,8 +21,10 @@
 #include <unistd.h>
 
 void test() {
+  char buf[40000] = "\0";
+  memset(buf, 'c', 39999);
   for (int i = 0; i < 10; i++) {
-    common::LOG_INFO("hello world");
+    common::LOG_INFO("hello world %s", buf);
     common::LOG_DEBUG("hello world %d %d", i, ++i);
     common::LOG_WARNING("hello world");
     common::LOG_FATAL("hello world");

@@ -24,6 +24,7 @@ TcpServer::~TcpServer() {
 
 void TcpServer::start() {
   _accept->listen();
+  _loop->poll();
 }
 
 void TcpServer::newConnection(int fd, IpAddress& peer_address) {

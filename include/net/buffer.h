@@ -16,8 +16,7 @@ class Buffer {
   Buffer():_read_index(0),
            _write_index(0),
            _buffer(kBufferSize) {}
-  ~Buffer() {common::LOG_DEBUG("read_index[%d], write_index[%d], buffer size[%d]",
-                               _read_index, _write_index, _buffer.size());}
+  ~Buffer() {}
 
   void append(const char *data, int length) {
     if (writeableSize() < length) {

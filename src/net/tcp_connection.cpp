@@ -38,7 +38,7 @@ void TcpConnection::handleRead() {
   // int errno;
   _input_buffer.clear();
   ssize_t size = _input_buffer.readFd(_sock->get_fd(), &errno);
-  common::LOG_DEBUG("read size [%d]", size);
+  // common::LOG_DEBUG("read size [%d]", size);
   if (size < 0) {
     common::LOG_INFO("read error [%s]", strerror(errno));
     // common::LOG_INFO("read error ");
@@ -50,7 +50,7 @@ void TcpConnection::handleRead() {
 
 void TcpConnection::handleWrite() {
   int n = Socket::write(_sock->get_fd(), _output_buffer.data(), _output_buffer.readableSize());
-  common::LOG_DEBUG("write size [%d]", n);
+  // common::LOG_DEBUG("write size [%d]", n);
   if (n > 0) {
     _output_buffer.retrive(n);
     if (_output_buffer.readableSize() == 0) {
