@@ -8,25 +8,40 @@
 #include <stdio.h>
 
 namespace common {
+enum Level {
+  DEBUG = 0,
+  INFO,
+  WARNING,
+  FATAL
+};
+
 class Logger {
  public:
-  Logger(FILE *file): file_(file) {}
   virtual ~Logger() {}
-  void Log(const char* fmt, ...);
+  void Log(Level level, const char* fmt, ...);
   void SetFile(FILE* file) {file_ = file;}
+  static Logger* GetLogger();
+
+ private:
+  Logger(FILE* file): file_(file) {}
 
  private:
   FILE* file_;
+  static Logger* logger_;
 };
 
-extern Logger* g_logger;
-#define LOG_INFO(format, args...)    \
-  g_logger->Log("INFO    [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
-#define LOG_DEBUG(format, args...)   \
-  g_logger->Log("DEBUG   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
-#define LOG_WARNING(format, args...) \
-  g_logger->Log("WARNING [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
-#define LOG_FATAL(format, args...)   \
-  g_logger->Log("FATAL   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define LOG(level, format, ...) \
+  Logger::GetLogger()->Log(level, "[%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...) LOG(common::DEBUG, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...) LOG(common::INFO, format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...) LOG(common::WARNING, format, ##__VA_ARGS__)
+#define LOG_FATAL(format, ...) LOG(common::FATAL, format, ##__VA_ARGS__)
+
+// #define LOG_DEBUG(format, args...)   \
+//   Logger::GetLogger()->Log("DEBUG   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
+// #define LOG_WARNING(format, args...) \
+//   Logger::GetLogger()->Log("WARNING [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
+// #define LOG_FATAL(format, args...)   \
+//   Logger::GetLogger()->Log("FATAL   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
 } //namespace common
 #endif

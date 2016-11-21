@@ -10,12 +10,13 @@
 #include <memory>
 #include <string>
 #include "socket.h"
+#include "event_loop.h"
 #include "function.h"
+#include "mutex.h"
 
 namespace net {
 class Acceptor;
 class TcpConnection;
-class EventLoop;
 class Buffer;
 using std::string;
 using std::map;
@@ -35,17 +36,21 @@ class TcpServer {
  private:
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);
+  void event_loop_run(int i);
 
  private:
   std::shared_ptr<Acceptor> _accept;
-  EventLoop* _loop;
+  std::unique_ptr<EventLoop[]> _loops;
+  EventLoop* _acceptor_loop;
   map<int, TcpConnectionPtr> _tcp_connections;
   NewConncetionCallack _connect_cb;
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
   int64_t _conn_num;
-  int _eventloop_num;
+  const int _eventloop_num = 4;
+  common::Mutex _mutex;
+
 };
 } //namespace net
 

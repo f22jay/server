@@ -11,12 +11,12 @@
 #pragma once
 
 #include <pthread.h>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace common {
 class Thread {
  public:
-  typedef boost::function<void()> Proc;
+  typedef std::function<void()> Proc;
 
   bool Start(Proc proc) {
     _thread_func = proc;

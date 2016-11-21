@@ -5,7 +5,7 @@
  *
  **************************************************************************/
 
- /**
+/**
  * @file test/test.cpp
  * @author zhangfangjie(zhangfangjie@baidu.com)
  * @date 2015/11/19 10:56:21
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
+#include <string.h>
 
 void test() {
   char buf[40000] = "\0";
@@ -32,15 +33,15 @@ void test() {
 }
 
 void test_thread_pool() {
-    common::ThreadPool threadPool(10);
-    threadPool.Start();
-    for(int i = 0; i<1000; i++) {
-        threadPool.AddTask(test);
-    }
-    usleep(20000000);
+  common::ThreadPool threadPool(10);
+  threadPool.Start();
+  for(int i = 0; i<1000; i++) {
+    threadPool.AddTask(test);
+  }
+  usleep(20000000);
 }
 
 int main() {
-     test_thread_pool();
-     return 0;
+  test_thread_pool();
+  return 0;
 }

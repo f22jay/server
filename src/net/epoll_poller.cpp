@@ -9,11 +9,12 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include <atomic>
 #include "log.h"
 
 namespace net {
 const int kEventInitialSize = 32;
-int g_event_num = 0;
+std::atomic<unsigned long long>  g_event_num(0);
 EpollPoller::EpollPoller(): _eventList(kEventInitialSize){
   // _epfd = epoll_create1(0);
   _epfd = epoll_create(1024);
@@ -49,11 +50,12 @@ int EpollPoller::updateChannel(Channel* channel) {
 
 int EpollPoller::removeChannel(Channel* channel) {
   int fd = channel->get_fd();
-  if (_channelMap.find(fd) == _channelMap.end()) {
+  ChannelMap::const_iterator it = _channelMap.find(fd);
+  if (it == _channelMap.end()) {
     return 0;
   }
   if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
-    _channelMap.erase(_channelMap.find(fd));
+    _channelMap.erase(it);
     // common::LOG_INFO("remove channel fd[%d] suc", fd);
     return 0;
   } else {
@@ -88,7 +90,7 @@ int EpollPoller::poll(int timeout, ChannelList* active_channels) {
   if (num_events == _eventList.size()) {
     _eventList.resize(num_events * 2);
   }
-  g_event_num += num_events;
+  g_event_num.fetch_add(num_events);
   return num_events;
 }
 } //namespace net
