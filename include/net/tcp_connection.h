@@ -23,6 +23,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   virtual ~TcpConnection();
 
   int get_fd() {return _sock->get_fd();}
+  EventLoop* get_loop() {return _loop;}
   void init_callback();
   int shutdown() {return Socket::shutdown(get_fd());}
   void setCloseCallBack(CloseCallBack cb) {_close_cb = cb;}
@@ -48,7 +49,6 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   CloseCallBack _close_cb;
   Buffer _input_buffer;
   Buffer _output_buffer;
-  uint64_t _conn_num;
 };
 
 }//namespace net

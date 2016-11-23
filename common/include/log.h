@@ -6,6 +6,7 @@
 #ifndef INCLUDE_LOG_H
 #define INCLUDE_LOG_H
 #include <stdio.h>
+#include <string.h>
 
 namespace common {
 enum Level {
@@ -29,19 +30,14 @@ class Logger {
   FILE* file_;
   static Logger* logger_;
 };
-
+// #define __FILENAME__ __FILE__
+#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
 #define LOG(level, format, ...) \
-  Logger::GetLogger()->Log(level, "[%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+  Logger::GetLogger()->Log(level, "[%s:%d] [%s] " format, __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define LOG_DEBUG(format, ...) LOG(common::DEBUG, format, ##__VA_ARGS__)
 #define LOG_INFO(format, ...) LOG(common::INFO, format, ##__VA_ARGS__)
 #define LOG_WARNING(format, ...) LOG(common::WARNING, format, ##__VA_ARGS__)
 #define LOG_FATAL(format, ...) LOG(common::FATAL, format, ##__VA_ARGS__)
 
-// #define LOG_DEBUG(format, args...)   \
-//   Logger::GetLogger()->Log("DEBUG   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
-// #define LOG_WARNING(format, args...) \
-//   Logger::GetLogger()->Log("WARNING [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
-// #define LOG_FATAL(format, args...)   \
-//   Logger::GetLogger()->Log("FATAL   [%s:%d] [%s] " format, __FILE__, __LINE__, __FUNCTION__, ##args)
 } //namespace common
 #endif

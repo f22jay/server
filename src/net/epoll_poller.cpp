@@ -56,7 +56,7 @@ int EpollPoller::removeChannel(Channel* channel) {
   }
   if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
     _channelMap.erase(it);
-    // common::LOG_INFO("remove channel fd[%d] suc", fd);
+    common::LOG_INFO("remove channel fd[%d] suc", fd);
     return 0;
   } else {
     // common::LOG_INFO("remove channel fd[%d] fail", fd);

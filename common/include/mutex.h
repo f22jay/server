@@ -41,4 +41,19 @@ class Mutex {
     return ret == 0;
   }
 };
+
+class MutexGuard
+{
+ public:
+  MutexGuard(Mutex* mtx): _mtx(mtx) {
+    _mtx->Lock();
+  }
+  virtual ~MutexGuard() {
+    _mtx->UnLock();
+  }
+
+ private:
+  Mutex* _mtx;
+};
+
 }

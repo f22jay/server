@@ -1,4 +1,5 @@
 #include "tcp_server.h"
+#include <signal.h>
 #include <functional>
 #include "tcp_connection.h"
 #include "channel.h"
@@ -15,7 +16,8 @@ TcpServer::TcpServer(
     const string& name)
     : _accept(new Acceptor(loop,
                            std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2),  listen_address)),
-      _name(name), _acceptor_loop(loop) {
+      _name(name), _acceptor_loop(loop){
+      // _loops(NULL){
   _conn_num = 0;
 }
 
@@ -26,8 +28,13 @@ TcpServer::~TcpServer() {
   }
 }
 
+void TcpServer::ignore_pipe() {
+  signal(SIGPIPE, SIG_IGN);
+}
+
 void TcpServer::start() {
   _accept->listen();
+  ignore_pipe();
   std::vector<common::Thread> threads(_eventloop_num);
   _loops.reset(new EventLoop[_eventloop_num]);
 
@@ -48,29 +55,29 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   Socket::getLocalAddr(fd, local_address);
   TcpConnectionPtr conn(new TcpConnection(&_loops[loop_id], fd, local_address, peer_address));
   conn->init_callback();
-  _mutex.Lock();
-  _tcp_connections.insert(std::make_pair(fd, conn));
-  _mutex.UnLock();
+  {
+    common::MutexGuard mtx_guard(&_mutex);
+    _tcp_connections.insert(std::make_pair(fd, conn));
+  }
   conn->setMessageCallBack(_message_cb);
   conn->setCloseCallBack(std::bind(&TcpServer::removeTcpConnection, this, std::placeholders::_1));
   conn->setWriteCallBack(_write_cb);
 
   common::LOG_INFO("connection fd[%d], peer[%s]\n", fd, peer_address.toIpPortStr().c_str());
   //activate connection
-  conn->connectEstablished();
+  _loops[loop_id].runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+  // conn->connectEstablished();
   // common::LOG_DEBUG("connection use_conut[%d]", conn.use_count());
 }
 
 void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
-  common::Mutex mutex;
-  _mutex.Lock();
-  auto it = _tcp_connections.find(conn->get_fd());
-  if (it == _tcp_connections.end()) {
-      common::LOG_INFO("cannot find connection fd [%d] ", conn->get_fd());
-      return;
-  }
-  _tcp_connections.erase(it);
-  _mutex.UnLock();
+  _acceptor_loop->runInLoop(std::bind(&TcpServer::removeTcpConnectionInLoop, this, conn));
+}
+
+void TcpServer::removeTcpConnectionInLoop(const TcpConnectionPtr& conn) {
+  _tcp_connections.erase(conn->get_fd());
   common::LOG_INFO("remove connection fd[%d] suc, use count[%d]", conn->get_fd(), conn.use_count());
+  EventLoop* loop = conn->get_loop();
+  loop->runInLoop(std::bind(&TcpConnection::connectDestroied, conn));
 }
 }//namespace net

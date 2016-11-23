@@ -72,7 +72,7 @@ void TcpConnection::connectDestroied() {
 
 void TcpConnection::handleClose() {
   // common::LOG_DEBUG("close tcpconnection fd[%d]", get_fd());
-  _channel->remove();
+  // _channel->remove();
   _close_cb(shared_from_this());
 }
 

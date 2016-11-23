@@ -36,7 +36,9 @@ class TcpServer {
  private:
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);
+  void removeTcpConnectionInLoop(const TcpConnectionPtr& conn);
   void event_loop_run(int i);
+  void ignore_pipe();
 
  private:
   std::shared_ptr<Acceptor> _accept;

@@ -11,13 +11,9 @@
 
 namespace net {
 EventLoop::EventLoop()
-    : _state(true), _poller(new EpollPoller()) {
-    common::LOG_DEBUG("eventloop constructor");
-}
+    : _state(true), _poller(new EpollPoller()) {}
 
-EventLoop::~EventLoop() {
-  common::LOG_DEBUG("eventloop distructor");
-}
+EventLoop::~EventLoop() {}
 
 int EventLoop::updateChannel(Channel* channel) {
   return _poller->updateChannel(channel);
@@ -27,14 +23,31 @@ int EventLoop::removeChannel(Channel* channel) {
   return _poller->removeChannel(channel);
 }
 
+void EventLoop::runInLoop(const Func& func) {
+  common::MutexGuard guard(&_mutex);
+  _pending_funcs.push_back(func);
+}
+
+void EventLoop::runPending() {
+  std::vector<Func> pending_funcs;
+  {
+    common::MutexGuard guard(&_mutex);
+    pending_funcs.swap(_pending_funcs);
+  }
+  for (auto func: pending_funcs) {
+    func();
+  }
+}
+
 int EventLoop::poll(int timeout) {
   while (_state) {
     _activeList.clear();
-    // assert(-1 != _poller->poll(timeout, &_activeList));
     _poller->poll(timeout, &_activeList);
     for (const auto& channel: _activeList) {
       channel->handleEvent();
     }
+
+    runPending();
   }
 }
 }//namespace net
