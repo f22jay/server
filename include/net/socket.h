@@ -7,6 +7,7 @@
 #ifndef NET_SOCKET_H
 #define NET_SOCKET_H
 #include <unistd.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -17,7 +18,7 @@
 #include <log.h>
 
 namespace net {
-const int kMaxCon = 10000;
+const int kMaxCon = 20000;
 class IpAddress {
  public:
   friend class Socket;
@@ -78,7 +79,7 @@ class Socket {
     socklen_t len = sizeof(address._address);
     int connec_fd = ::accept(_fd, (struct sockaddr*)&address._address,& len);
     if (connec_fd < 0) {
-      common::LOG_INFO("accept connect error, listen fd[%d]", _fd);
+      common::LOG_FATAL("accept connect error, listen fd[%d], [%s]", _fd, strerror(errno));
       return -1;
     }
     return connec_fd;
