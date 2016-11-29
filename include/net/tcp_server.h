@@ -30,7 +30,15 @@ class TcpServer {
   TcpServer(EventLoop* loop, const IpAddress& address, const string& name);
   virtual ~TcpServer();
   void start();
-  // void stop();
+
+  // implemented by ohter specfic server
+  // when message is coming, call this
+  virtual void onMessage(const TcpConnectionPtr&, Buffer*);
+  // when send message complete, call this
+  virtual void onWrite(const TcpConnectionPtr&);
+  // when connection is closed, call this
+  virtual void onClose(const TcpConnectionPtr&);
+
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}
  private:

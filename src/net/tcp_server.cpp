@@ -46,6 +46,20 @@ void TcpServer::start() {
   _accept->start();
 }
 
+void TcpServer::onMessage(const TcpConnectionPtr& conn, Buffer* buf) {
+  common::LOG_INFO("read: [%s]", buf->data());
+}
+
+void TcpServer::onWrite(const TcpConnectionPtr& conn) {
+  common::LOG_INFO("write complete");
+  return;
+}
+
+void TcpServer::onClose(const TcpConnectionPtr& conn) {
+  common::LOG_INFO("connection closed");
+  return;
+}
+
 void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   _conn_num++;
   int loop_id = _conn_num % _eventloop_num;
@@ -55,9 +69,9 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   TcpConnectionPtr conn(new TcpConnection(&_loops[loop_id], fd, local_address, peer_address));
   conn->init_callback();
   _tcp_connections.insert(std::make_pair(fd, conn));
-  conn->setMessageCallBack(_message_cb);
+  conn->setMessageCallBack(std::bind(&TcpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
   conn->setCloseCallBack(std::bind(&TcpServer::removeTcpConnection, this, std::placeholders::_1));
-  conn->setWriteCallBack(_write_cb);
+  conn->setWriteCallBack(std::bind(&TcpServer::onWrite, this, std::placeholders::_1));
 
   common::LOG_INFO("connection fd[%d], peer[%s]\n", fd, peer_address.toIpPortStr().c_str());
   //activate connection

@@ -13,17 +13,13 @@
 #include "function.h"
 #include "log.h"
 namespace net {
-class DateServer {
+class DateServer: public TcpServer {
  public:
   DateServer(EventLoop* loop, IpAddress& address, const std::string& name);
   virtual ~DateServer();
-  void start();
 
   // read message and reply
   void onMessage(const TcpConnectionPtr& conn, Buffer* buffer);
-
- private:
-  TcpServer _server;
 };
 
 }//namespace net
