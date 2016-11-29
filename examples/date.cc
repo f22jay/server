@@ -4,6 +4,7 @@
 // Breif :
 
 #include "date.h"
+#include <signal.h>
 #include <string.h>
 #include <stdio.h>
 #include <atomic>
@@ -31,7 +32,7 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     time(&now);
     int size = snprintf(buf, 100, "%s", ctime(&now));
     conn->send(buf, size);
-    common::LOG_FATAL("[g_accept_num:%d], [g_event_num:%d]", g_accept_num, g_event_num.load());
+    // common::LOG_FATAL("[g_accept_num:%d], [g_event_num:%d]", g_accept_num, g_event_num.load());
     // conn->shutdown();
   }
 
@@ -41,12 +42,17 @@ void DateServer::start() {
 }
 }  // net
 
+void print_data(int sig) {
+  common::LOG_FATAL("[g_accept_num:%d], [g_event_num:%d]", net::g_accept_num, net::g_event_num.load());
+}
+
 int main(int argc, char *argv[])
 {
   net::IpAddress address("10.128.144.17", 10086);
   net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
   net::DateServer server(loop, address, name);
+  signal(SIGUSR1, print_data);
   server.start();
   return 0;
 }

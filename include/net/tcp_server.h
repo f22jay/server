@@ -37,10 +37,10 @@ class TcpServer {
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);
   void removeTcpConnectionInLoop(const TcpConnectionPtr& conn);
-  void event_loop_run(int i);
   void ignore_pipe();
 
  private:
+  IpAddress _listen_address;
   std::shared_ptr<Acceptor> _accept;
   std::unique_ptr<EventLoop[]> _loops;
   EventLoop* _acceptor_loop;

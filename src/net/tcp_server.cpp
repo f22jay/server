@@ -10,14 +10,8 @@
 
 namespace net {
 
-TcpServer::TcpServer(
-    EventLoop* loop,
-    const IpAddress& listen_address,
-    const string& name)
-    : _accept(new Acceptor(loop,
-                           std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2),  listen_address)),
-      _name(name), _acceptor_loop(loop){
-      // _loops(NULL){
+TcpServer::TcpServer(EventLoop* loop, const IpAddress& listen_address, const string& name)
+    : _name(name), _acceptor_loop(loop), _listen_address(listen_address){
   _conn_num = 0;
 }
 
@@ -33,32 +27,34 @@ void TcpServer::ignore_pipe() {
 }
 
 void TcpServer::start() {
-  _accept->listen();
+  _accept.reset(new Acceptor(_acceptor_loop,
+                             std::bind(&TcpServer::newConnection,
+                                       this, std::placeholders::_1,
+                                       std::placeholders::_2),
+                             _listen_address));
   ignore_pipe();
   std::vector<common::Thread> threads(_eventloop_num);
   _loops.reset(new EventLoop[_eventloop_num]);
 
-  // start _eventloop_num threads
+  auto thread_run = [this] (int i) {this->_loops[i].poll();};
+  // start eventloop thread
   for (int n = 0; n < _eventloop_num; n++) {
-    threads[n].Start(std::bind(&TcpServer::event_loop_run, this, n));
+    threads[n].Start(std::bind(thread_run, n));
   }
-  _acceptor_loop->poll();
+
+  // start listen loop
+  _accept->start();
 }
 
-void TcpServer::event_loop_run(int i) {
-  _loops[i].poll();
-}
 void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   _conn_num++;
   int loop_id = _conn_num % _eventloop_num;
   IpAddress local_address;
   Socket::getLocalAddr(fd, local_address);
+
   TcpConnectionPtr conn(new TcpConnection(&_loops[loop_id], fd, local_address, peer_address));
   conn->init_callback();
-  {
-    common::MutexGuard mtx_guard(&_mutex);
-    _tcp_connections.insert(std::make_pair(fd, conn));
-  }
+  _tcp_connections.insert(std::make_pair(fd, conn));
   conn->setMessageCallBack(_message_cb);
   conn->setCloseCallBack(std::bind(&TcpServer::removeTcpConnection, this, std::placeholders::_1));
   conn->setWriteCallBack(_write_cb);
@@ -66,8 +62,6 @@ void TcpServer::newConnection(int fd, IpAddress& peer_address) {
   common::LOG_INFO("connection fd[%d], peer[%s]\n", fd, peer_address.toIpPortStr().c_str());
   //activate connection
   _loops[loop_id].runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
-  // conn->connectEstablished();
-  // common::LOG_DEBUG("connection use_conut[%d]", conn.use_count());
 }
 
 void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
@@ -76,7 +70,7 @@ void TcpServer::removeTcpConnection(const TcpConnectionPtr& conn) {
 
 void TcpServer::removeTcpConnectionInLoop(const TcpConnectionPtr& conn) {
   _tcp_connections.erase(conn->get_fd());
-  common::LOG_INFO("remove connection fd[%d] suc, use count[%d]", conn->get_fd(), conn.use_count());
+  common::LOG_INFO("remove connection fd[%d] suc", conn->get_fd());
   EventLoop* loop = conn->get_loop();
   loop->runInLoop(std::bind(&TcpConnection::connectDestroied, conn));
 }

@@ -1,4 +1,4 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
-include_directories("../include/net" "${PROJECT_SOURCE_DIR}/common/include")
-add_executable(date_server date.cc)
-target_link_libraries(date_server server)
+INCLUDE_DIRECTORIES("../include/net" "${PROJECT_SOURCE_DIR}/common/include")
+ADD_EXECUTABLE(date_server date.cc)
+TARGET_LINK_libraries(date_server server)

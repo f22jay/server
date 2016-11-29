@@ -29,8 +29,12 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   void setCloseCallBack(CloseCallBack cb) {_close_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) { _write_cb = cb;}
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
+
+  // activate channel
   void connectEstablished() {_channel->enableRead();}
+  // remove channel
   void connectDestroied();
+
   void send(const char* data, int size);
 
  private:

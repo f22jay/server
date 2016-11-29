@@ -24,11 +24,12 @@ Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress& ad
 }
 Acceptor::~Acceptor() {}
 
-void Acceptor::listen() {
+void Acceptor::start() {
   _sock->listen();
-  _channel->setReadCallBack(std::bind(&Acceptor::handleRead, shared_from_this()));
+  _channel->setReadCallBack(std::bind(&Acceptor::handleRead, this));
   _channel->enableRead();
   common::LOG_DEBUG("acceptor listen");
+  _loop->poll();
 }
 
 void Acceptor::handleRead() {
@@ -43,7 +44,7 @@ void Acceptor::handleRead() {
 }
 
 void Acceptor::handleClose() {
-  common::LOG_FATAL("NOTICE: Acceptor closed!!!!!!!");
+  common::LOG_WARNING("NOTICE: Acceptor closed!!!!!!!");
   _loop->stop();
 }
 

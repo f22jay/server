@@ -17,7 +17,7 @@ const int kEventInitialSize = 32;
 std::atomic<unsigned long long>  g_event_num(0);
 EpollPoller::EpollPoller(): _eventList(kEventInitialSize){
   // _epfd = epoll_create1(0);
-  _epfd = epoll_create(1024);
+  _epfd = epoll_create(10240);
 
 }
 

@@ -18,10 +18,6 @@ TcpConnection::TcpConnection(
   // _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, shared_from_this()));
   // _channel->setCloseCallBack(std::bind(&TcpConnection::handleClose, shared_from_this()));
   // is error, constructor cannot use shared_from_this
-
-  // _channel->setReadCallBack(std::bind(&TcpConnection::handleRead, this));
-  // _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, this));
-  // _channel->setCloseCallBack(std::bind(&TcpConnection::handleClose, this));
 }
 
 TcpConnection::~TcpConnection() {}
@@ -41,8 +37,6 @@ void TcpConnection::handleRead() {
   // common::LOG_DEBUG("read size [%d]", size);
   if (size < 0) {
     common::LOG_INFO("read error [%s]", strerror(errno));
-    // common::LOG_INFO("read error ");
-    //todo strerrro
     handleClose();
   }
   _message_cb(shared_from_this(), &_input_buffer);
@@ -66,13 +60,10 @@ void TcpConnection::handleWrite() {
 }
 
 void TcpConnection::connectDestroied() {
-  // _channel->disableAll();
   _channel->remove();
 }
 
 void TcpConnection::handleClose() {
-  // common::LOG_DEBUG("close tcpconnection fd[%d]", get_fd());
-  // _channel->remove();
   _close_cb(shared_from_this());
 }
 

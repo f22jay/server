@@ -24,9 +24,14 @@ class EventLoop{
 
   int updateChannel(Channel* channel);
   int removeChannel(Channel* channel);
+
+  // events loop
   int poll(int timeout = 1000);
   void stop() {_state = false;}
+
+  //run in loop thread, some ops in here, such as insert or delete channel map
   void runInLoop(const Func& func);
+
   void runPending();
 
  private:

@@ -34,6 +34,7 @@ void EventLoop::runPending() {
     common::MutexGuard guard(&_mutex);
     pending_funcs.swap(_pending_funcs);
   }
+
   for (auto func: pending_funcs) {
     func();
   }

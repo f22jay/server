@@ -14,11 +14,11 @@ class Channel;
 class IpAddress;
 class Socket;
 
-class Acceptor: public std::enable_shared_from_this<Acceptor> {
+class Acceptor {
  public:
   Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress &address);
   virtual ~Acceptor();
-  void listen();
+  void start();
  private:
   void handleRead();
   void handleClose();
