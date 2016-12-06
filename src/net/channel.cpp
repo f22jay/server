@@ -1,20 +1,8 @@
-/***************************************************************************
- *
- * Copyright (c) 2016 Baidu.com, Inc. All Rights Reserved
- * $Id$
- *
- **************************************************************************/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/06 16:21:35
+// Breif :
 
-/**
- * @file channel.cpp
- * @author zhangfangjie(zhangfangjie@baidu.com)
- * @date 2016/01/07 19:44:06
- * @version $Revision$
- * @brief
- *
- **/
-
-/* vim: set ts=4 sw=4 sts=4 tw=100 */
 #include "channel.h"
 #include <poll.h>
 #include <sys/epoll.h>

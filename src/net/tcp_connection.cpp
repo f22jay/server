@@ -1,3 +1,8 @@
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/06 16:20:48
+// Breif :
+
 #include "tcp_connection.h"
 #include <errno.h>
 #include "event_loop.h"

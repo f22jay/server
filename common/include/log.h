@@ -3,6 +3,7 @@
 // Author : zhangfangjie (f22jay@163.com)
 // Date 2016/09/04 10:04:15
 // Breif : simple loger
+
 #ifndef INCLUDE_LOG_H
 #define INCLUDE_LOG_H
 #include <stdio.h>
@@ -20,17 +21,17 @@ class Logger {
  public:
   virtual ~Logger() {}
   void Log(Level level, const char* fmt, ...);
-  void SetFile(FILE* file) {file_ = file;}
+  void SetFile(FILE* file) {_file = file;}
   static Logger* GetLogger();
 
  private:
-  Logger(FILE* file): file_(file) {}
+  Logger(FILE* file): _file(file) {}
 
  private:
-  FILE* file_;
-  static Logger* logger_;
+  FILE* _file;
+  static Logger* _logger;
 };
-// #define __FILENAME__ __FILE__
+// #define __FILENAME__ ___FILE_
 #define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
 #define LOG(level, format, ...) \
   Logger::GetLogger()->Log(level, "[%s:%d] [%s] " format, __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__)

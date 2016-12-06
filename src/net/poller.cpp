@@ -1,20 +1,8 @@
-/***************************************************************************
- *
- * Copyright (c) 2015 Inc. All Rights Reserved
- * $Id$
- *
- **************************************************************************/
+// Copyright maverick Inc. All Rights Reserved.
+// Author : zhangfangjie (f22jay@163.com)
+// Date 2016/03/06 16:21:10
+// Breif :
 
-/**
- * @file poller.c
- * @author moon(f22jay@gmail.com)
- * @date 2015/12/26 15:36:57
- * @version $Revision$
- * @brief
- *
- **/
-
-/* vim: set ts=4 sw=4 sts=4 tw=100 */
 #include "poller.h"
 #include "channel.h"
 
