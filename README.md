@@ -51,3 +51,4 @@ FATAL   2017/03/07-16:55:15.735764 48aa [epoll_poller.cpp:75] [poll] Interrupted
 
 #测试客户端
 开了3个client，每个client建立5000个长连接，循环100次，每个连接send一个消息 ,发完后，client sleep 10s,退出程序。由脚本每分钟启动一个这样的client，有3个脚本程序分别周期性启动client
+**qps 最大13546，最小7056**
