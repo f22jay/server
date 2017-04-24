@@ -25,6 +25,9 @@ TcpConnection::TcpConnection(
   // is error, constructor cannot use shared_from_this
 }
 
+TcpConnection::TcpConnection(EventLoop* loop, int fd)
+    : _loop(loop), _sock(new Socket(fd)), _channel(new Channel(fd, loop)) {}
+
 TcpConnection::~TcpConnection() {}
 
 void TcpConnection::init_callback() {

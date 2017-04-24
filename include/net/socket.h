@@ -70,6 +70,13 @@ class Socket {
   virtual ~Socket() {
     ::close(_fd);
   }
+
+  bool connect(IpAddress& address) {
+    setNonBlock();
+    int ret = ::connect(_fd, (struct sockaddr*)&address._address, sizeof(address._address));
+    int savedErrno = (ret == 0) ? 0 : errno;
+  }
+
   //listen request
   bool listen() {
    return ::listen(_fd, kMaxCon) != -1;
