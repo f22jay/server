@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   net::IpAddress address(net::kServerIp, net::kServerPort);
   net::EventLoop* loop = new net::EventLoop();
   std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 5000;
+  int nums = 10000;
   for (int i = 0; i < nums; ++i) {
     std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(loop, address));
     clients.push_back(client_ptr);

@@ -28,7 +28,7 @@ FATAL   2017/04/24-17:04:15.501965 7c6f [epoll_poller.cpp:75] [poll] Interrupted
 ```
 
 #测试客户端
-开了1个client，建立5000个长连接, 发送一次message，收到后继续发送，类似pingpong
+开了1个client，建立5000个长连接, 发送一次message，收到后继续发送，类似pingpong, 4个event——loop
 
 **qps 83272**
 

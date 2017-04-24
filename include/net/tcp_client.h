@@ -22,6 +22,7 @@ class TcpClient
 
   TcpClient(EventLoop* loop, const IpAddress& address);
   virtual ~TcpClient();
+  void close(const TcpConnectionPtr& conn);
   void start();
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}

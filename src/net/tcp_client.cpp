@@ -18,12 +18,16 @@ TcpClient::TcpClient(EventLoop* loop, const IpAddress& address): _loop(loop), _s
 
 TcpClient::~TcpClient() {}
 
+void TcpClient::close(const TcpConnectionPtr& conn) {
+  common::LOG_INFO("connection fd[%d] closed", conn->get_fd());
+  _loop->runInLoop(std::bind(&TcpConnection::connectDestroied, conn));
+}
 void TcpClient::start() {
   _sock.connect(_server);
   _tcp_connection.reset(new TcpConnection(_loop, _sock.get_fd()));
   _tcp_connection->setMessageCallBack(_message_cb);
   _tcp_connection->setWriteCallBack(_write_cb);
-  // _tcp_connection.setCloseCallBack
+  _tcp_connection->setCloseCallBack(std::bind(&TcpClient::close, this, std::placeholders::_1));
   _tcp_connection->init_callback();
   _tcp_connection->connectEstablished();
   _connect_cb(_tcp_connection);
