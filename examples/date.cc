@@ -41,7 +41,7 @@ void print_data(int sig) {
 
 int main(int argc, char *argv[])
 {
-  net::IpAddress address("10.128.144.17", 10086);
+  net::IpAddress address(net::kServerIp, net::kServerPort);
   net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
   net::DateServer server(loop, address, name);

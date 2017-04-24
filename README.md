@@ -10,43 +10,32 @@ examples date.cc is a simple examples
 
 ?**accept_num: tcp connection nums**
 **event_num:io event nums, is request nums**
-```
-[root@st01-nova-rath7-f02-sys7.st01.xxxxxx examples]# ./date_server
-FATAL   2017/03/07-16:42:37.855866 48aa [date.cc:39] [print_data] [g_accept_num:14768], [g_event_num:639512]
-FATAL   2017/03/07-16:42:37.855937 48aa [epoll_poller.cpp:75] [poll] Interrupted system call
-FATAL   2017/03/07-16:46:08.615061 48aa [date.cc:39] [print_data] [g_accept_num:64460], [g_event_num:3484281]
-FATAL   2017/03/07-16:46:08.615089 48aa [epoll_poller.cpp:75] [poll] Interrupted system call
-3484281639512FATAL   2017/03/07-16:51:28.131216 48aa [date.cc:39] [print_data] [g_accept_num:114415], [g_event_num:6479734]
-FATAL   2017/03/07-16:51:28.131239 48aa [epoll_poller.cpp:75] [poll] Interrupted system call
-FATAL   2017/03/07-16:55:15.735742 48aa [date.cc:39] [print_data] [g_accept_num:164026], [g_event_num:8715881]
-FATAL   2017/03/07-16:55:15.735764 48aa [epoll_poller.cpp:75] [poll] Interrupted system call
-```
 
-**established tcp connections, max 7847**,尽管最大打开文件数目开了2w，由于处理新连接是一个线程，上不去。
 ```
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-7031
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-7847
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-4349
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-4357
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-4355
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# kill -SIGUSR1 18602
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# kill -SIGUSR1 18602
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-3497
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-385
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
-385
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# kill -SIGUSR1 18602
-[root@st01-nova-rath7-f02-sys7.st01.xx.com test]# lsof -p 18602 | grep ESTAB | wc -l
+[root@st01-nova-rath7-f02-sys7.st01.baidu.com examples]# ./date_server
+FATAL   2017/04/24-16:57:20.456276 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:2763556]
+FATAL   2017/04/24-16:57:20.456343 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
+FATAL   2017/04/24-16:57:32.023107 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:3630272]
+FATAL   2017/04/24-16:57:32.023141 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
+FATAL   2017/04/24-16:57:52.263166 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:5113002]
+FATAL   2017/04/24-16:57:52.263202 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
+FATAL   2017/04/24-17:01:40.837832 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:21949160]
+FATAL   2017/04/24-17:01:40.837868 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
+FATAL   2017/04/24-17:01:49.828768 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:22623990]
+FATAL   2017/04/24-17:01:49.828810 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
+FATAL   2017/04/24-17:04:15.501938 7c6f [date.cc:39] [print_data] [g_accept_num:4928], [g_event_num:33309137]
+FATAL   2017/04/24-17:04:15.501965 7c6f [epoll_poller.cpp:75] [poll] Interrupted system call
 ```
 
 #测试客户端
-开了3个client，每个client建立5000个长连接，循环100次，每个连接send一个消息 ,发完后，client sleep 10s,退出程序。由脚本每分钟启动一个这样的client，有3个脚本程序分别周期性启动client
+开了1个client，建立5000个长连接, 发送一次message，收到后继续发送，类似pingpong
 
-**qps 最大13546，最小7056**
+**qps 83272**
+
+**cpu内存使用率**
+```
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  31855 root      20   0  410m 242m 1432 S 99.9  0.3  20:37.63 date_server
+  32364 zhangfan  20   0  278m 244m 1140 R 99.7  0.3  11:45.30 date_client
+```

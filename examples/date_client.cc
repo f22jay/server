@@ -5,6 +5,7 @@
 // Breif :
 
 #include "date_client.h"
+#include "date.h"
 #include "tcp_connection.h"
 #include "event_loop.h"
 #include <vector>
@@ -42,10 +43,10 @@ void DateClient::start() {
 
 int main(int argc, char *argv[])
 {
-  net::IpAddress address("10.128.144.17", 10086);
+  net::IpAddress address(net::kServerIp, net::kServerPort);
   net::EventLoop* loop = new net::EventLoop();
   std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 1000;
+  int nums = 5000;
   for (int i = 0; i < nums; ++i) {
     std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(loop, address));
     clients.push_back(client_ptr);

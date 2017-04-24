@@ -12,7 +12,11 @@
 #include <stdio.h>
 #include "function.h"
 #include "log.h"
+
 namespace net {
+const char* kServerIp = "10.128.144.17";
+const int kServerPort = 10086;
+
 class DateServer: public TcpServer {
  public:
   DateServer(EventLoop* loop, IpAddress& address, const std::string& name);
