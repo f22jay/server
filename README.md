@@ -8,8 +8,8 @@ examples date.cc & date_client.cc are simple examples
 
 # QPS TEST
 
-**accept_num: tcp connection nums**
-**event_num: io event nums, is request nums**
+* accept_num: tcp connection nums
+* event_num: io event nums, is request nums 
 
 ```
 [root@st01-nova-rath7-f02-sys7.st01.baidu.com examples]# ./date_server
