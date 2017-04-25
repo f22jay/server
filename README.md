@@ -1,7 +1,7 @@
 # NOTICE
 a simple server lib, reactor based on epoll, create a tcp server easily just implement three funcs,
 examples date.cc & date_client.cc are simple examples
-#BUILD AND RUN
+# BUILD AND RUN
 * mkdir build && cd build && cmake ..
 * make
 * cd examples
@@ -9,7 +9,7 @@ examples date.cc & date_client.cc are simple examples
 # QPS TEST
 
 **accept_num: tcp connection nums**
-**event_num:io event nums, is request nums**
+**event_num: io event nums, is request nums**
 
 ```
 [root@st01-nova-rath7-f02-sys7.st01.baidu.com examples]# ./date_server
