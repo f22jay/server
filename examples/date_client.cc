@@ -24,18 +24,21 @@ void DateClient::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
   }
 
   conn->send("hello", 5);
-    // conn->shutdown();
 }
 
 void DateClient::onConnect(const TcpConnectionPtr& conn) {
   common::LOG_INFO("connect: fd[%d]", conn->get_fd());
   conn->send("hello", 5);
-    // conn->shutdown();
 }
 
 void DateClient::start() {
-  _client.setMessageCallBack(std::bind(&DateClient::onMessage, this, std::placeholders::_1, std::placeholders::_2));
-  _client.setConnectionCallBack(std::bind(&DateClient::onConnect, this, std::placeholders::_1));
+  _client.setMessageCallBack(std::bind(&DateClient::onMessage,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2));
+  _client.setConnectionCallBack(std::bind(&DateClient::onConnect,
+                                          this,
+                                          std::placeholders::_1));
   _client.start();
 }
 
@@ -55,5 +58,5 @@ int main(int argc, char *argv[])
   // net::DateClient client(loop, address);
   // client.start();
   loop->poll();
-  return 0;  return 0;
+  return 0;
 }
