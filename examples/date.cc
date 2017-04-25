@@ -26,11 +26,12 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
       conn->shutdown();
       return;
     }
-    char buf[100];
-    time_t now;
-    time(&now);
-    int size = snprintf(buf, 100, "%s", ctime(&now));
-    conn->send(buf, size);
+    // char buf[100];
+    // time_t now;
+    // time(&now);
+    // int size = snprintf(buf, 100, "%s", ctime(&now));
+    // conn->send(buf, size);
+    conn->send("world", 5);
   }
 
 }  // net
