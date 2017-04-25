@@ -1,12 +1,12 @@
 # NOTICE
 a simple server lib, reactor based on epoll, create a tcp server easily just implement three funcs,
-examples date.cc is a simple examples
+examples date.cc & date_client.cc are simple examples
 #BUILD AND RUN
 * mkdir build && cd build && cmake ..
 * make
 * cd examples
 
-#QPS TEST
+# QPS TEST
 
 **accept_num: tcp connection nums**
 **event_num:io event nums, is request nums**
@@ -35,9 +35,9 @@ FATAL   2017/04/25-10:17:42.105243 16d1 [date.cc:40] [print_data] [g_accept_num:
 FATAL   2017/04/25-10:17:42.105286 16d1 [epoll_poller.cpp:75] [poll] Interrupted system call
 ```
 
-#测试客户端
-*开了5个client，每个客户端10000个长连接, 发送"hello"，收到"world"后继续发送，类似pingpong
-*server端，1个event_loop线程专门处理io连接，8个event_loop线程处理io请求
+# 测试客户端
+* 开了5个client，每个客户端10000个长连接, 发送"hello"，收到"world"后继续发送，类似pingpong
+* server端，1个event_loop线程专门处理io连接，8个event_loop线程处理io请求
 
 **qps 254715**
 
