@@ -5,13 +5,15 @@
 // Breif :
 
 #include "date_client.h"
+#include <signal.h>
+#include <vector>
+#include <memory>
 #include "date.h"
 #include "tcp_connection.h"
 #include "event_loop.h"
-#include <vector>
-#include <memory>
 
 namespace net {
+EventLoop* loop = NULL;
 DateClient::DateClient(EventLoop* loop, IpAddress& address):_client(loop, address) {}
 
 DateClient::~DateClient() {}
@@ -44,19 +46,27 @@ void DateClient::start() {
 
 }  // net
 
+void exit(int sig) {
+  common::LOG_FATAL("exit \n");
+  net::loop->stop();
+}
+
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::EventLoop* loop = new net::EventLoop();
+  net::loop = new net::EventLoop();
   std::vector<std::shared_ptr<net::DateClient> > clients;
   int nums = 10000;
   for (int i = 0; i < nums; ++i) {
-    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(loop, address));
+    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::loop, address));
     clients.push_back(client_ptr);
     client_ptr->start();
   }
   // net::DateClient client(loop, address);
   // client.start();
-  loop->poll();
+  signal(SIGINT, exit);
+  net::loop->poll();
+  common::LOG_FATAL("main exit");
+  delete net::loop;
   return 0;
 }

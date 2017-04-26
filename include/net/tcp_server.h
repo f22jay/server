@@ -41,6 +41,8 @@ class TcpServer {
 
   void setMessageCallBack(MessageCallBack cb) {_message_cb = cb;}
   void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}
+
+  unsigned long size() {return _tcp_connections.size();}
  private:
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);

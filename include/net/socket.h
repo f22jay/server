@@ -69,6 +69,7 @@ class Socket {
 
   virtual ~Socket() {
     ::close(_fd);
+    common::LOG_DEBUG("socket desconsturct close [%d]", _fd);
   }
 
   bool connect(IpAddress& address) {

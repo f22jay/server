@@ -14,7 +14,7 @@
 namespace net {
 extern int g_accept_num;
 extern std::atomic<unsigned long long> g_event_num;
-
+net::DateServer* server = NULL;
 DateServer::DateServer(net::EventLoop* loop, net::IpAddress& address, const std::string& name):
     TcpServer(loop, address, name) {}
 
@@ -37,7 +37,10 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
 }  // net
 
 void print_data(int sig) {
-  common::LOG_FATAL("[g_accept_num:%d], [g_event_num:%d]", net::g_accept_num, net::g_event_num.load());
+  common::LOG_FATAL("[current_connection_nums:%lu], [sum_connection_nums:%lu], [sum_event_nums:%llu]",
+                    net::server->size(),
+                    net::g_accept_num,
+                    net::g_event_num.load());
 }
 
 int main(int argc, char *argv[])
@@ -45,8 +48,8 @@ int main(int argc, char *argv[])
   net::IpAddress address(net::kServerIp, net::kServerPort);
   net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
-  net::DateServer server(loop, address, name);
+  net::server = new net::DateServer(loop, address, name);
   signal(SIGUSR1, print_data);
-  server.start();
+  net::server->start();
   return 0;
 }

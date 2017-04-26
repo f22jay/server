@@ -16,7 +16,7 @@ namespace net {
 
 TcpClient::TcpClient(EventLoop* loop, const IpAddress& address): _loop(loop), _server(address) {}
 
-TcpClient::~TcpClient() {}
+TcpClient::~TcpClient() {common::LOG_DEBUG("tcpclient desconsturct");}
 
 void TcpClient::close(const TcpConnectionPtr& conn) {
   common::LOG_INFO("connection fd[%d] closed", conn->get_fd());
