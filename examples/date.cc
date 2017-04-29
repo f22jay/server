@@ -37,7 +37,7 @@ void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
 }  // net
 
 void print_data(int sig) {
-  common::LOG_FATAL("[current_connection_nums:%lu], [sum_connection_nums:%lu], [sum_event_nums:%llu]",
+  common::LOG_FATAL("[current_connection_nums:%lu], [sum_connection_nums:%d], [sum_event_nums:%llu]",
                     net::server->size(),
                     net::g_accept_num,
                     net::g_event_num.load());

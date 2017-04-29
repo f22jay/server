@@ -107,9 +107,10 @@ class Socket {
 
   static int shutdown(int fd) {
     if (::shutdown(fd, SHUT_WR) < 0) {
-      common::LOG_WARNING("shutdown fd[%d] error", fd);
+      common::LOG_FATAL("shutdown fd[%d] error", fd);
       return -1;
     }
+    common::LOG_DEBUG("shutdown fd[%d] error", fd);
     return 0;
   }
 

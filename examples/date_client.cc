@@ -14,6 +14,8 @@
 
 namespace net {
 EventLoop* loop = NULL;
+std::vector<std::shared_ptr<net::DateClient> > clients;
+int current = 0;
 DateClient::DateClient(EventLoop* loop, IpAddress& address):_client(loop, address) {}
 
 DateClient::~DateClient() {}
@@ -29,8 +31,12 @@ void DateClient::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
 }
 
 void DateClient::onConnect(const TcpConnectionPtr& conn) {
+  current++;
+  if (current < clients.size()) {
+    clients[current]->start();
+  }
   common::LOG_INFO("connect: fd[%d]", conn->get_fd());
-  conn->send("hello", 5);
+  conn->send("hello\n", 6);
 }
 
 void DateClient::start() {
@@ -46,27 +52,29 @@ void DateClient::start() {
 
 }  // net
 
-void exit(int sig) {
-  common::LOG_FATAL("exit \n");
-  net::loop->stop();
-}
+// void exit(int sig) {
+//   common::LOG_FATAL("exit \n");
+//   net::loop->stop();
+// }
 
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
   net::loop = new net::EventLoop();
-  std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 10000;
+  int nums = 5000;
+  net::clients.reserve(nums);
   for (int i = 0; i < nums; ++i) {
     std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::loop, address));
-    clients.push_back(client_ptr);
-    client_ptr->start();
+    net::clients.push_back(client_ptr);
   }
+
+  net::clients[net::current]->start();
+
   // net::DateClient client(loop, address);
   // client.start();
-  signal(SIGINT, exit);
+  // signal(SIGINT, exit);
   net::loop->poll();
-  common::LOG_FATAL("main exit");
+  common::LOG_INFO("main exit");
   delete net::loop;
   return 0;
 }
