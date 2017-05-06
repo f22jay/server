@@ -114,6 +114,7 @@ class Socket {
                  &optval, static_cast<socklen_t>(sizeof optval));
   }
 
+
   void setKeepAlive(bool on) {
     int optval = on ? 1 : 0;
     ::setsockopt(_fd, SOL_SOCKET, SO_KEEPALIVE,

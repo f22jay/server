@@ -11,6 +11,7 @@
 #include <string>
 #include "socket.h"
 #include "event_loop.h"
+#include "event_thread.h"
 #include "function.h"
 #include "mutex.h"
 
@@ -27,7 +28,7 @@ class TcpServer {
   //new connect come, do
   typedef void (* NewConncetionCallack)(int);
 
-  TcpServer(EventLoop* loop, const IpAddress& address, const string& name);
+  TcpServer(const IpAddress& address, const string& name, int loop_num);
   virtual ~TcpServer();
   void start();
 
@@ -43,6 +44,7 @@ class TcpServer {
   void setWriteCallBack(WriteCallBack cb) {_write_cb = cb;}
 
   unsigned long size() {return _tcp_connections.size();}
+  void Wait() {_pools.Wait();}
  private:
   void newConnection(int fd, IpAddress& );
   void removeTcpConnection(const TcpConnectionPtr& conn);
@@ -52,15 +54,16 @@ class TcpServer {
  private:
   IpAddress _listen_address;
   std::shared_ptr<Acceptor> _accept;
-  std::unique_ptr<EventLoop[]> _loops;
-  EventLoop* _acceptor_loop;
+  // std::unique_ptr<EventLoop[]> _loops;
+  // EventLoop* _acceptor_loop;
+  EventLoopThreadPool _pools;
   map<int, TcpConnectionPtr> _tcp_connections;
   NewConncetionCallack _connect_cb;
   MessageCallBack _message_cb;
   WriteCallBack _write_cb;
   string _name;
   int64_t _conn_num;
-  const int _eventloop_num = 4;
+  const int _eventloop_num = 12;
   common::Mutex _mutex;
 
 };

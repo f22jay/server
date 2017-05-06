@@ -18,6 +18,7 @@ class Acceptor {
  public:
   Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress &address);
   virtual ~Acceptor();
+  EventLoop* get_loop() {return _loop;}
   void start();
  private:
   void handleRead();

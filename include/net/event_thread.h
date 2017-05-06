@@ -39,7 +39,7 @@ class EventLoopThreadPool
     }
   };
   virtual ~EventLoopThreadPool() {}
-  EventLoop* getLoop() {return &_loops[_events++ % _nums];}
+  EventLoop* get_loop() {return &_loops[_events++ % _nums];}
   void Start() {
     for (auto& thread : _threads) {
       thread.Start();

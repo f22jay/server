@@ -55,11 +55,11 @@ void exit(int sig) {
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::eventPool = new net::EventLoopThreadPool(4);
+  net::eventPool = new net::EventLoopThreadPool(12);
   std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 2000;
+  int nums = 1000;
   for (int i = 0; i < nums; ++i) {
-    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::eventPool->getLoop(), address));
+    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::eventPool->get_loop(), address));
     clients.push_back(client_ptr);
     client_ptr->start();
   }

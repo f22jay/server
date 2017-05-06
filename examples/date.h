@@ -19,7 +19,7 @@ const int kServerPort = 10086;
 
 class DateServer: public TcpServer {
  public:
-  DateServer(EventLoop* loop, IpAddress& address, const std::string& name);
+  DateServer(IpAddress& address, const std::string& name, int loop_num);
   virtual ~DateServer();
 
   // read message and reply

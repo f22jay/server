@@ -30,7 +30,7 @@ void Acceptor::start() {
   _channel->setReadCallBack(std::bind(&Acceptor::handleRead, this));
   _channel->enableRead();
   common::LOG_DEBUG("acceptor listen");
-  _loop->poll();
+  // _loop->poll();
 }
 
 void Acceptor::handleRead() {

@@ -15,8 +15,8 @@ namespace net {
 extern int g_accept_num;
 extern std::atomic<unsigned long long> g_event_num;
 net::DateServer* server = NULL;
-DateServer::DateServer(net::EventLoop* loop, net::IpAddress& address, const std::string& name):
-    TcpServer(loop, address, name) {}
+DateServer::DateServer(net::IpAddress& address, const std::string& name, int loop_num):
+    TcpServer(address, name, loop_num) {}
 
 DateServer::~DateServer() {}
 
@@ -46,9 +46,9 @@ void print_data(int sig) {
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::EventLoop* loop = new net::EventLoop();
+  // net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
-  net::server = new net::DateServer(loop, address, name);
+  net::server = new net::DateServer(address, name, 12);
   signal(SIGUSR1, print_data);
   net::server->start();
   return 0;
