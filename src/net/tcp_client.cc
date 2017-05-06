@@ -14,7 +14,9 @@
 
 namespace net {
 
-TcpClient::TcpClient(EventLoop* loop, const IpAddress& address): _loop(loop), _server(address) {}
+TcpClient::TcpClient(EventLoop* loop, const IpAddress& address): _loop(loop),
+                                                                 _server(address),
+                                                                 _sock(new Socket()){}
 
 TcpClient::~TcpClient() {common::LOG_DEBUG("tcpclient desconsturct");}
 
@@ -23,8 +25,8 @@ void TcpClient::close(const TcpConnectionPtr& conn) {
   _loop->runInLoop(std::bind(&TcpConnection::connectDestroied, conn));
 }
 void TcpClient::start() {
-  _sock.connect(_server);
-  _tcp_connection.reset(new TcpConnection(_loop, _sock.get_fd()));
+  _sock->connect(_server);
+  _tcp_connection.reset(new TcpConnection(_loop, _sock));
   _tcp_connection->setMessageCallBack(_message_cb);
   _tcp_connection->setWriteCallBack(_write_cb);
   _tcp_connection->setCloseCallBack(std::bind(&TcpClient::close, this, std::placeholders::_1));

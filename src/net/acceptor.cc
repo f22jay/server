@@ -21,6 +21,7 @@ Acceptor::Acceptor(EventLoop* loop, NewConncetionCallack cb, const IpAddress& ad
       _channel(new Channel(_sock->get_fd(), _loop)) {
   assert(_sock->bind(address));
   _sock->setNonBlock();
+  _sock->setAddrReuse(true);
 }
 Acceptor::~Acceptor() {}
 

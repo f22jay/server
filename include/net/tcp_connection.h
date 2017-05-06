@@ -20,7 +20,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
                 int fd,
                 const IpAddress& local_address,
                 const IpAddress& remote_address);
-  TcpConnection(EventLoop* loop, int fd);
+  TcpConnection(EventLoop* loop, const std::shared_ptr<Socket>& sock);
   virtual ~TcpConnection();
 
   int get_fd() {return _sock->get_fd();}
@@ -47,7 +47,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   EventLoop* _loop;
   IpAddress _local_address;
   IpAddress _remote_address;
-  std::unique_ptr<Socket> _sock;;
+  std::shared_ptr<Socket> _sock;;
   std::unique_ptr<Channel> _channel;
   MessageCallBack _message_cb;
   WriteCompleteCallBack _write_cb;

@@ -19,14 +19,15 @@ TcpConnection::TcpConnection(
       _channel(new Channel(fd, loop)),
       _local_address(local_address),
       _remote_address(remote_address) {
+  _sock->setTcpNoDelay(true);
   // _channel->setReadCallBack(std::bind(&TcpConnection::handleRead, shared_from_this()));
   // _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, shared_from_this()));
   // _channel->setCloseCallBack(std::bind(&TcpConnection::handleClose, shared_from_this()));
   // is error, constructor cannot use shared_from_this
 }
 
-TcpConnection::TcpConnection(EventLoop* loop, int fd)
-    : _loop(loop), _sock(new Socket(fd)), _channel(new Channel(fd, loop)) {}
+TcpConnection::TcpConnection(EventLoop* loop, const std::shared_ptr<Socket>& sock)
+    : _loop(loop), _sock(sock), _channel(new Channel(sock->get_fd(), loop)) {}
 
 TcpConnection::~TcpConnection() {}
 
@@ -77,6 +78,7 @@ void TcpConnection::handleClose() {
 
 void TcpConnection::send(const char *data, int size) {
   ssize_t wrote = 0;
+  common::LOG_INFO("fd[%d], write [%s]", _sock->get_fd(), data);
   if (! _channel->isWriting() && _output_buffer.readableSize() == 0) {
     wrote = Socket::write(_sock->get_fd(), data, size);
     if (wrote == size) {

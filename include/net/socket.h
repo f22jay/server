@@ -8,6 +8,8 @@
 #define NET_SOCKET_H
 #include <unistd.h>
 #include <errno.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -73,9 +75,10 @@ class Socket {
   }
 
   bool connect(IpAddress& address) {
-    setNonBlock();
     int ret = ::connect(_fd, (struct sockaddr*)&address._address, sizeof(address._address));
-    int savedErrno = (ret == 0) ? 0 : errno;
+    // setNonBlock();
+    setTcpNoDelay(true);
+    return ret == 0;
   }
 
   //listen request
@@ -103,6 +106,24 @@ class Socket {
     int flags = ::fcntl(_fd, F_GETFL, 0);
     flags |= O_NONBLOCK;
     int ret = ::fcntl(_fd, F_SETFL, flags);
+  }
+
+  void setTcpNoDelay(bool on) {
+    int optval = on ? 1 : 0;
+    ::setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY,
+                 &optval, static_cast<socklen_t>(sizeof optval));
+  }
+
+  void setKeepAlive(bool on) {
+    int optval = on ? 1 : 0;
+    ::setsockopt(_fd, SOL_SOCKET, SO_KEEPALIVE,
+                 &optval, static_cast<socklen_t>(sizeof optval));
+  }
+
+  void setAddrReuse(bool on) {
+    int optval = on ? 1 : 0;
+    ::setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, static_cast<socklen_t>(sizeof optval));
   }
 
   static int shutdown(int fd) {

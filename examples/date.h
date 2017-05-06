@@ -14,7 +14,7 @@
 #include "log.h"
 
 namespace net {
-const char* kServerIp = "localhost";
+const char* kServerIp = "10.128.144.17";
 const int kServerPort = 10086;
 
 class DateServer: public TcpServer {

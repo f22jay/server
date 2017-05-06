@@ -29,7 +29,7 @@ class TcpClient
   void setConnectionCallBack(ConnectionCallBack cb) {_connect_cb = cb;}
 
  private:
-  Socket _sock;
+  std::shared_ptr<Socket> _sock;
   IpAddress _server;
   EventLoop* _loop;
   TcpConnectionPtr _tcp_connection;

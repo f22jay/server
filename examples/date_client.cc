@@ -11,11 +11,10 @@
 #include "date.h"
 #include "tcp_connection.h"
 #include "event_loop.h"
+#include "event_thread.h"
 
 namespace net {
-EventLoop* loop = NULL;
-std::vector<std::shared_ptr<net::DateClient> > clients;
-int current = 0;
+EventLoopThreadPool* eventPool = NULL;
 DateClient::DateClient(EventLoop* loop, IpAddress& address):_client(loop, address) {}
 
 DateClient::~DateClient() {}
@@ -27,16 +26,12 @@ void DateClient::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     return;
   }
 
-  conn->send("hello", 5);
+  conn->send("h", 1);
 }
 
 void DateClient::onConnect(const TcpConnectionPtr& conn) {
-  current++;
-  if (current < clients.size()) {
-    clients[current]->start();
-  }
   common::LOG_INFO("connect: fd[%d]", conn->get_fd());
-  conn->send("hello\n", 6);
+  conn->send("h", 1);
 }
 
 void DateClient::start() {
@@ -52,29 +47,28 @@ void DateClient::start() {
 
 }  // net
 
-// void exit(int sig) {
-//   common::LOG_FATAL("exit \n");
-//   net::loop->stop();
-// }
+void exit(int sig) {
+  common::LOG_FATAL("exit \n");
+  net::eventPool->Stop();
+}
 
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::loop = new net::EventLoop();
-  int nums = 5000;
-  net::clients.reserve(nums);
+  net::eventPool = new net::EventLoopThreadPool(4);
+  std::vector<std::shared_ptr<net::DateClient> > clients;
+  int nums = 2000;
   for (int i = 0; i < nums; ++i) {
-    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::loop, address));
-    net::clients.push_back(client_ptr);
+    std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::eventPool->getLoop(), address));
+    clients.push_back(client_ptr);
+    client_ptr->start();
   }
-
-  net::clients[net::current]->start();
-
   // net::DateClient client(loop, address);
   // client.start();
-  // signal(SIGINT, exit);
-  net::loop->poll();
-  common::LOG_INFO("main exit");
-  delete net::loop;
+  signal(SIGINT, exit);
+  net::eventPool->Start();
+  net::eventPool->Wait();
+  common::LOG_FATAL("main exit");
+  delete net::eventPool;
   return 0;
 }
