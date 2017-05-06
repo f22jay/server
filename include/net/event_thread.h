@@ -13,9 +13,14 @@ namespace net {
 class EventLoopThread
 {
  public:
-  EventLoopThread(EventLoop* loop): _loop(loop) {};
+  EventLoopThread(): _loop(NULL) {};
   virtual ~EventLoopThread() {}
-  void Start() {_thread.Start(std::bind(&EventLoopThread::thread_run, this));}
+  void set_loop(EventLoop* loop) {
+    _loop = loop;
+  }
+  void Start() {
+    _thread.Start(std::bind(&EventLoopThread::thread_run, this));
+  }
   void Wait() {_thread.Join();}
   void thread_run() {
     _loop->poll();
@@ -28,7 +33,11 @@ class EventLoopThread
 class EventLoopThreadPool
 {
  public:
-  EventLoopThreadPool(int nums): _nums(nums), _events(0), _loops(nums), _threads(nums) {};
+  EventLoopThreadPool(int nums): _nums(nums), _events(0), _loops(nums), _threads(nums) {
+    for (int i = 0; i < nums; i++) {
+      _threads[i].set_loop(&_loops[i]);
+    }
+  };
   virtual ~EventLoopThreadPool() {}
   EventLoop* getLoop() {return &_loops[_events++ % _nums];}
   void Start() {
