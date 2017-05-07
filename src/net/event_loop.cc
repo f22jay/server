@@ -29,6 +29,9 @@ void EventLoop::runInLoop(const Func& func) {
 }
 
 void EventLoop::runPending() {
+  if (_pending_funcs.size() == 0) {
+    return;
+  }
   std::vector<Func> pending_funcs;
   {
     common::MutexGuard guard(&_mutex);
