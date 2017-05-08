@@ -55,7 +55,7 @@ void exit(int sig) {
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::eventPool = new net::EventLoopThreadPool(4);
+  net::eventPool = new net::EventLoopThreadPool(8);
   std::vector<std::shared_ptr<net::DateClient> > clients;
   int nums = 1000;
   for (int i = 0; i < nums; ++i) {

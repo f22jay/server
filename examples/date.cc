@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   net::IpAddress address(net::kServerIp, net::kServerPort);
   // net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
-  net::server = new net::DateServer(address, name, 4);
+  net::server = new net::DateServer(address, name, 8);
   signal(SIGUSR1, print_data);
   net::server->start();
   return 0;
