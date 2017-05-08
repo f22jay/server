@@ -26,8 +26,9 @@ FATAL   2017/05/08-10:19:10.947728 133b [date.cc:43] [print_data] [current_conne
 # QPS (本机pingpong测试)
 * client端，1000个连接，发送'h',收到server端的'w'后再发送'h'
 * server端，收到'h', 发送'w'
+
 |client io thread nums|server io thread nums|qps|
-|:----|:---:|
+|----|----|----|
 |4|4|346608|
 |6|6|422946|
 |8|8|425742|
