@@ -47,7 +47,7 @@ void DateClient::start() {
 
 }  // net
 
-void exit(int sig) {
+void control_c(int sig) {
   common::LOG_FATAL("exit \n");
   net::eventPool->Stop();
 }
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   }
   // net::DateClient client(loop, address);
   // client.start();
-  signal(SIGINT, exit);
+  signal(SIGINT, control_c);
   net::eventPool->Start();
   net::eventPool->Wait();
   common::LOG_FATAL("main exit");
