@@ -26,12 +26,12 @@ void DateClient::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
     return;
   }
 
-  conn->send("h", 1);
+  // conn->send("h", 1);
 }
 
 void DateClient::onConnect(const TcpConnectionPtr& conn) {
   common::LOG_INFO("connect: fd[%d]", conn->get_fd());
-  conn->send("h", 1);
+  // conn->send("h", 1);
 }
 
 void DateClient::start() {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   net::IpAddress address(net::kServerIp, net::kServerPort);
   net::eventPool = new net::EventLoopThreadPool(4);
   std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 1000;
+  int nums = 10000;
   for (int i = 0; i < nums; ++i) {
     std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::eventPool->get_loop(), address));
     clients.push_back(client_ptr);

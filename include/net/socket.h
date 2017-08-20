@@ -76,7 +76,7 @@ class Socket {
 
   bool connect(IpAddress& address) {
     int ret = ::connect(_fd, (struct sockaddr*)&address._address, sizeof(address._address));
-    // setNonBlock();
+    setNonBlock();
     setTcpNoDelay(true);
     return ret == 0;
   }

@@ -14,7 +14,6 @@
 #include "thread.h"
 
 namespace net {
-
 TcpServer::TcpServer(const IpAddress& listen_address, const string& name, int loop_num)
     : _name(name), _pools(loop_num), _listen_address(listen_address){
   _conn_num = 0;
