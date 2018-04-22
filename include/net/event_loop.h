@@ -26,7 +26,7 @@ class EventLoop{
   int removeChannel(Channel* channel);
 
   // events loop
-  int poll(int timeout = 1);
+  int poll(int timeout = 10000);
   void stop() {_state = false;}
 
   //run in loop thread, some ops in here, such as insert or delete channel map

@@ -20,18 +20,20 @@ DateClient::DateClient(EventLoop* loop, IpAddress& address):_client(loop, addres
 DateClient::~DateClient() {}
 
 void DateClient::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
-  common::LOG_INFO("read: [%s]", buffer->data());
+  common::LOG_INFO("read size [%lu]", buffer->readableSize());
+  buffer->clear();
   if (memcmp("exit", buffer->data(), 4) == 0) {
     conn->shutdown();
     return;
   }
-
-  // conn->send("h", 1);
+  std::string res(102400, 'C');
+  conn->send(res.c_str(), res.size());
 }
 
 void DateClient::onConnect(const TcpConnectionPtr& conn) {
+  std::string res(10240, 'C');
   common::LOG_INFO("connect: fd[%d]", conn->get_fd());
-  // conn->send("h", 1);
+  conn->send(res.c_str(), res.size());
 }
 
 void DateClient::start() {
@@ -47,7 +49,7 @@ void DateClient::start() {
 
 }  // net
 
-void exit(int sig) {
+void server_exit(int sig) {
   common::LOG_FATAL("exit \n");
   net::eventPool->Stop();
 }
@@ -55,9 +57,9 @@ void exit(int sig) {
 int main(int argc, char *argv[])
 {
   net::IpAddress address(net::kServerIp, net::kServerPort);
-  net::eventPool = new net::EventLoopThreadPool(4);
+  net::eventPool = new net::EventLoopThreadPool(2);
   std::vector<std::shared_ptr<net::DateClient> > clients;
-  int nums = 10000;
+  int nums = 500;
   for (int i = 0; i < nums; ++i) {
     std::shared_ptr<net::DateClient> client_ptr(new net::DateClient(net::eventPool->get_loop(), address));
     clients.push_back(client_ptr);
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
   }
   // net::DateClient client(loop, address);
   // client.start();
-  signal(SIGINT, exit);
+  signal(SIGINT, server_exit);
   net::eventPool->Start();
   net::eventPool->Wait();
   common::LOG_FATAL("main exit");

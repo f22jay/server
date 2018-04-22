@@ -25,7 +25,10 @@ void TcpClient::close(const TcpConnectionPtr& conn) {
   _loop->runInLoop(std::bind(&TcpConnection::connectDestroied, conn));
 }
 void TcpClient::start() {
-  _sock->connect(_server);
+  if (!_sock->connect(_server)) {
+    common::LOG_FATAL("fd[%d] connect fail", _sock->get_fd());
+    return;
+  }
   _tcp_connection.reset(new TcpConnection(_loop, _sock));
   _tcp_connection->setMessageCallBack(_message_cb);
   _tcp_connection->setWriteCallBack(_write_cb);

@@ -37,7 +37,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection> {
   void connectDestroied();
 
   void send(const char* data, int size);
-
+  void sendInLoop();
  private:
   void handleRead();
   void handleWrite();

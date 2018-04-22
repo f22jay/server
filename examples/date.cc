@@ -21,18 +21,14 @@ DateServer::DateServer(net::IpAddress& address, const std::string& name, int loo
 DateServer::~DateServer() {}
 
 void DateServer::onMessage(const TcpConnectionPtr& conn, Buffer* buffer) {
-    // common::LOG_INFO("read: [%s]", buffer->data());
+  common::LOG_INFO("read size [%lu]", buffer->readableSize());
   if (memcmp("exit", buffer->data(), 4) == 0) {
       conn->shutdown();
       return;
-    }
-    // char buf[100];
-    // time_t now;
-    // time(&now);
-    // int size = snprintf(buf, 100, "%s", ctime(&now));
-    // conn->send(buf, size);
-    conn->send("w", 1);
   }
+  conn->send(buffer->data(), buffer->readableSize());
+  buffer->clear();
+}
 
 }  // net
 
@@ -48,7 +44,7 @@ int main(int argc, char *argv[])
   net::IpAddress address(net::kServerIp, net::kServerPort);
   // net::EventLoop* loop = new net::EventLoop();
   std::string name = "date";
-  net::server = new net::DateServer(address, name, 4);
+  net::server = new net::DateServer(address, name, 2);
   signal(SIGUSR1, print_data);
   net::server->start();
   return 0;

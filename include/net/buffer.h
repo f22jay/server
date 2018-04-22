@@ -1,4 +1,3 @@
-/* -*- C++ -*- */
 // Copyright maverick Inc. All Rights Reserved.
 // Author : zhangfangjie (f22jay@163.com)
 // Date 2016/03/07 19:13:43
@@ -9,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include "log.h"
+#include "common.h"
 
 namespace net{
 class Buffer {
@@ -18,12 +18,15 @@ class Buffer {
            _buffer(kBufferSize) {}
   ~Buffer() {}
 
-  void append(const char *data, int length) {
+  int append(const char *data, int length) {
     if (writeableSize() < length) {
-      makeSpace(length);
+      if(0 != makeSpace(length)) {
+        return -1;
+      }
     }
     std::copy(data, data + length, writeBegin());
     _write_index += length;
+    return 0;
   }
 
   void retrive(int n) {
@@ -39,7 +42,7 @@ class Buffer {
   }
 
   size_t writeableSize() const {
-    return kBufferSize - _write_index;
+    return size() - _write_index;
   }
 
   char* begin() {
@@ -50,17 +53,17 @@ class Buffer {
     return begin() + _read_index;
   }
 
-  int size() {
+  int size() const {
     return _buffer.size();
   }
 
   void clear() {
     _read_index = _write_index = 0;
-    // std::vector<char> buf(kBufferSize);
-    // _buffer.swap(buf);
+    std::vector<char> buf(kBufferSize);
+    _buffer.swap(buf);
   }
 
-  void makeSpace(size_t length) {
+  int makeSpace(size_t length) {
     //buffer not used size < length
     if (size() - readableSize()  < length) {
       _buffer.resize(length + size());
@@ -69,6 +72,7 @@ class Buffer {
       _write_index -= _read_index;
       _read_index = 0;
     }
+    return 0;
   }
   ssize_t readFd(int fd, int* savedErrno);
  private:

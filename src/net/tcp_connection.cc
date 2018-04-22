@@ -19,6 +19,7 @@ TcpConnection::TcpConnection(
       _channel(new Channel(fd, loop)),
       _local_address(local_address),
       _remote_address(remote_address) {
+  _sock->setNonBlock();
   _sock->setTcpNoDelay(true);
   // _channel->setReadCallBack(std::bind(&TcpConnection::handleRead, shared_from_this()));
   // _channel->setWriteCallBack(std::bind(&TcpConnection::handleWrite, shared_from_this()));
@@ -40,31 +41,39 @@ void TcpConnection::init_callback() {
 }
 
 void TcpConnection::handleRead() {
-  // int errno;
-  _input_buffer.clear();
-  ssize_t size = _input_buffer.readFd(_sock->get_fd(), &errno);
-  // common::LOG_DEBUG("read size [%d]", size);
-  if (size < 0) {
-    common::LOG_INFO("read error [%s]", strerror(errno));
-    handleClose();
-  }
+  // _input_buffer.clear();
+  ssize_t size = 0;
+  do {
+    char buf[10240];
+    // size = _input_buffer.readFd(_sock->get_fd(), &errno);
+    size = read(_sock->get_fd(), buf, sizeof(buf));
+    if (size > 0) {
+      _input_buffer.append(buf, size);
+    }
+    if (size < 0 && errno != EAGAIN) {
+      common::LOG_FATAL("read error [%s]", strerror(errno));
+      handleClose();
+      return;
+    }
+
+  } while (size > 0);
   _message_cb(shared_from_this(), &_input_buffer);
 }
 
 void TcpConnection::handleWrite() {
   int n = Socket::write(_sock->get_fd(), _output_buffer.data(), _output_buffer.readableSize());
-  // common::LOG_DEBUG("write size [%d]", n);
   if (n > 0) {
     _output_buffer.retrive(n);
     if (_output_buffer.readableSize() == 0) {
-      //todo
-      _channel->disableWrite();
+      // _channel->disableWrite(); LT shoud disable
       _write_cb(shared_from_this());
+      _output_buffer.clear();
     } else {
-      common::LOG_INFO("need write more");
+      common::LOG_DEBUG("write the last size[%lu]", _output_buffer.readableSize());
+      // next loop will write the last data
     }
   } else {
-    common::LOG_INFO("write error");
+    common::LOG_FATAL("write error");
   }
 }
 
@@ -77,21 +86,35 @@ void TcpConnection::handleClose() {
 }
 
 void TcpConnection::send(const char *data, int size) {
+  if (data == NULL || size == 0) {
+    return;
+  }
+  _output_buffer.append(data, size);
+  _loop->runInLoop(std::bind(&TcpConnection::sendInLoop, shared_from_this()));
+  return;
+}
+
+void TcpConnection::sendInLoop() {
+  if (_output_buffer.readableSize() == 0) {
+    return;
+  }
   ssize_t wrote = 0;
-  common::LOG_INFO("fd[%d], write [%s]", _sock->get_fd(), data);
-  if (! _channel->isWriting() && _output_buffer.readableSize() == 0) {
-    wrote = Socket::write(_sock->get_fd(), data, size);
-    if (wrote == size) {
-      if (_write_cb) {
-        _write_cb(shared_from_this());
-      }
+  do {
+    wrote = Socket::write(_sock->get_fd(),
+                          _output_buffer.data(),
+                          _output_buffer.readableSize());
+    if (wrote >= 0) {
+      _output_buffer.retrive(wrote);
+    } else if (wrote == -1 && errno == EAGAIN) {
+      break;
+    } else {
+      common::LOG_FATAL("write fd[%u], error", _sock->get_fd());
       return;
     }
+  } while (_output_buffer.readableSize() > 0);
+  if (_write_cb) {
+    _write_cb(shared_from_this());
   }
-  wrote = wrote < 0 ? 0 : wrote;
-  _output_buffer.append(data + wrote, size - wrote);
-  _channel->enableWrite();
-
   return;
 }
 }//namespace net

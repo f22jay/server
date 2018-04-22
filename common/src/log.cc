@@ -18,7 +18,7 @@ const char* g_level_chars[] = {
   "WARNING ",
   "FATAL   "
 };
-common::Level log_level_threhold = common::FATAL;
+common::Level log_level_threhold = common::DEBUG;
 }  //
 
 namespace common {
@@ -60,7 +60,7 @@ void Logger::Log(Level level, const char* fmt, ...) {
     struct tm t;
     localtime_r(&seconds, &t);
     p += snprintf(p, limit - p,
-                  "%04d/%02d/%02d-%02d:%02d:%02d.%06d %x ",
+                  "%04d/%02d/%02d-%02d:%02d:%02d.%06d %d ",
                   t.tm_year + 1900,
                   t.tm_mon + 1,
                   t.tm_mday,
@@ -88,7 +88,12 @@ void Logger::Log(Level level, const char* fmt, ...) {
     fwrite(buf, sizeof(char), p - buf, _file);
     break;
   }
-  delete[] buf;
+  try {
+    delete[] buf;
+  } catch (...) {
+
+  }
+
 }
 
 } //namespace common

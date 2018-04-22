@@ -28,10 +28,10 @@ EpollPoller::~EpollPoller() {
 int EpollPoller::updateEvent(int op, Channel* channel) {
   struct epoll_event ee;
   int fd = channel->get_fd();
-  ee.events = channel->get_event();
+  ee.events = channel->get_event() | EPOLLET; //ET
   ee.data.u64 = 0;
   ee.data.fd = fd;
-  // common::LOG_DEBUG("update _epfd[%d] op[%d] fd[%d] events[%d]", _epfd, op, fd, ee.events);
+
   return epoll_ctl(this->_epfd, op, fd, &ee);
 }
 
@@ -43,7 +43,6 @@ int EpollPoller::updateChannel(Channel* channel) {
   } else {
     op = EPOLL_CTL_ADD;
     _channelMap.insert(std::make_pair(fd, channel));
-     // common::LOG_INFO("add channel fd[%d] suc", fd);
  }
   return updateEvent(op, channel);
 }
@@ -54,14 +53,14 @@ int EpollPoller::removeChannel(Channel* channel) {
   if (it == _channelMap.end()) {
     return 0;
   }
-  if ( 0 == updateEvent(EPOLL_CTL_DEL, channel)) {
+  int ret = updateEvent(EPOLL_CTL_DEL, channel);
+  if (ret == 0) {
     _channelMap.erase(it);
     common::LOG_INFO("remove channel fd[%d] suc", fd);
-    return 0;
   } else {
-    // common::LOG_INFO("remove channel fd[%d] fail", fd);
-    return -1;
+    common::LOG_FATAL("remove channel fd[%d] fail", fd);
   }
+  return ret;
 }
 
 int EpollPoller::poll(int timeout, ChannelList* active_channels) {

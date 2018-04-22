@@ -55,12 +55,10 @@ bool Channel::update() {
 int Channel::handleEvent() {
   if (_firedEvents & EPOLLHUP) {
     _closeCallBack();
-    // common::LOG_DEBUG("closed");
     return 0;
   }
 
   if (_firedEvents & (EPOLLERR)) {
-    // common::LOG_DEBUG("error");
     return 0;
   }
 
