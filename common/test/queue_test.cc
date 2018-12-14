@@ -9,19 +9,21 @@
 #include <atomic>
 #include <iostream>
 #include <unordered_set>
+#include <unistd.h>
 
 std::atomic<uint64_t> g_count(0);
-common::LFCircleQueue<uint64_t> g_queue(1000 * 1024);
+common::LFCircleQueue<uint64_t> g_queue(10 * 1024);
 
 void produce_func(std::vector<uint64_t>* vi) {
     while (true) {
         uint64_t val = g_count.fetch_add(1);
-        if (val >= 1000100) {
+        if (val >= 1001000) {
             break;
         }
         while (!g_queue.Push(val)) {
-            sched_yield();
+            usleep(1);
         }
+        
         vi->push_back(val);
     }
 }
@@ -30,7 +32,7 @@ void consume_func(std::vector<uint64_t>* vi) {
     while (true) {
         uint64_t val;
         while (!g_queue.Pop(&val)) {
-            sched_yield();
+            usleep(1);
         }
         vi->push_back(val);
         if (val >= 1000000) {
@@ -52,7 +54,7 @@ void check(const std::vector<std::vector<uint64_t>>& vvec) {
 int main(int argc, char *argv[]) {
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
-    int num = 1;
+    int num = 3;
     std::vector<std::vector<uint64_t>> vvec(num);
     std::vector<std::vector<uint64_t>> rvvec(num);
     for (int i = 0; i < num; ++i) {

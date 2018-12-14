@@ -5,38 +5,63 @@
 // Breif : mutil producer, single consume, producer may spin to enqueue
 #ifndef LOCK_FREE_QUEUE_H
 #define LOCK_FREE_QUEUE_H
-#include <atomic>
-#include <vector>
+#include <stdint.h>
 
 namespace common {
-template<T>
-class lock_free_queue {
+template<typename T>
+class LFCircleQueue
+{
  public:
-  lock_free_queue<T>(int size): size_(size), pool_(size), head_(0), _tail(0){}
-  void enqueue(const T& t) {
-    uint64_t tail = tail_.fetch_add(1);
-    // if pool is full, while check
-    while (tail - head_.load() >= size_);
-    pool_[tail % size_] = t;
+  LFCircleQueue (uint64_t size) {
+    buffers_ = new T[size];
+    size_ = size;
+  }
+  virtual ~LFCircleQueue() {
+    if (buffers_ != nullptr) {
+      delete[] buffers_;
+    }
   }
 
-  bool dequeue(T& t) {
-    uint64_t head = head_;
-    // if pool is empty, while check
-    if (head == tail_.load()) {
-      return false;
-    }
-    head_.fetch_add(1);
-    t = pool_[head % size_];
+  bool Push(const T& element) {
+    uint64_t write_pos, next_pos;
+    do {
+      write_pos = write_;
+      if (write_pos - read_r_ >= size_) {
+        // full
+        return false;
+      }
+      next_pos = write_pos + 1;
+    } while (!__sync_bool_compare_and_swap(&write_, write_pos, next_pos));
+    buffers_[write_pos % size_] = element;
+    while (!__sync_bool_compare_and_swap(&write_r_, write_pos, next_pos));
+    return true;
+  }
+
+  bool Pop(T* element) {
+    uint64_t read_pos, next_pos;
+    do {
+      read_pos = read_;
+      if (read_pos >= write_r_) {
+        // empty
+        return false;
+      }
+      next_pos = read_pos + 1;
+    } while (!__sync_bool_compare_and_swap(&read_, read_pos, next_pos));
+    while (!__sync_bool_compare_and_swap(&read_r_, read_pos, next_pos));
+    *element = buffers_[read_pos % size_];
+
     return true;
   }
 
  private:
-  static int size_ = 10000;
-  std::atomic<uint64_t> head_;
-  std::atomic<uint64_t> tail_;
-  std::vector<T> pool_;
-}
+  volatile uint64_t read_{0};
+  volatile uint64_t write_{0};
+  volatile uint64_t read_r_{0};
+  volatile uint64_t write_r_{0};
+
+  uint64_t size_{0};
+  T* buffers_{nullptr};
+};
 
 }  // common
 
