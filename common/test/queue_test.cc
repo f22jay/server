@@ -12,12 +12,12 @@
 #include <unistd.h>
 
 std::atomic<uint64_t> g_count(0);
-common::LFCircleQueue<uint64_t> g_queue(10 * 1024);
+common::LFCircleQueue<uint64_t> g_queue(16);
 
 void produce_func(std::vector<uint64_t>* vi) {
     while (true) {
         uint64_t val = g_count.fetch_add(1);
-        if (val >= 1001000) {
+        if (val >= 10001000) {
             break;
         }
         while (!g_queue.Push(val)) {
@@ -35,7 +35,7 @@ void consume_func(std::vector<uint64_t>* vi) {
             usleep(1);
         }
         vi->push_back(val);
-        if (val >= 1000000) {
+        if (val >= 10000000) {
             break;
         }
     }
@@ -54,7 +54,7 @@ void check(const std::vector<std::vector<uint64_t>>& vvec) {
 int main(int argc, char *argv[]) {
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
-    int num = 3;
+    int num = 5;
     std::vector<std::vector<uint64_t>> vvec(num);
     std::vector<std::vector<uint64_t>> rvvec(num);
     for (int i = 0; i < num; ++i) {
